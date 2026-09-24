@@ -13,7 +13,7 @@ results live under `docs/research/`; this catalog remains the concise index.
 | [Ersatz-MIL-STD-6016](https://github.com/liotier/Ersatz-MIL-STD-6016) | Unlicense; open source | Public reconstruction and browsable J-message catalog | [Analyzed](research/01-ersatz-mil-std-6016.md) |
 | [Wireshark](https://github.com/wireshark/wireshark) | GPL-2.0-or-later for relevant dissectors; open source | Link 16 word identification plus SIMPLE capture framing | [Analyzed](research/02-wireshark-link16.md) |
 | [SENTINEL](https://github.com/bwiemz/sentinel) | Custom view/study-only terms; not open source | Toy Python J-series encode/decode inside a sensor simulation | [Analyzed](research/03-sentinel-datalink.md) |
-| [AirSim-TDL-Surrogate](https://github.com/MichaelFowler1/AirSim-TDL-Surrogate) | PolyForm Noncommercial 1.0.0; source-available | Mock-ICD ETL, SQLite lookup, and simulated tactical display | Planned |
+| [AirSim-TDL-Surrogate](https://github.com/MichaelFowler1/AirSim-TDL-Surrogate) | Current head is PolyForm Noncommercial; last pre-change snapshot is Apache-2.0 | Mock-catalog ETL, SQLite listing, and simulated telemetry display | [Analyzed](research/04-airsim-tdl-surrogate.md) |
 
 License descriptions are planning summaries. Every deep analysis pins and
 reviews the license text at the exact upstream commit before recommending use.
@@ -65,16 +65,18 @@ message data. See the [completed deep analysis](research/03-sentinel-datalink.md
 
 ## AirSim-TDL-Surrogate
 
-AirSim-TDL-Surrogate combines simulated flight telemetry with a regex-driven
-mock interface-control-document parser, SQLite rule storage, network scripts,
-and a terminal display. It claims J0.0, J2.2, J3.2, and J28.2 support, but the
-deep study must determine whether that means binary message decoding, telemetry
-mapping, database lookup, or presentation behavior.
+AirSim-TDL-Surrogate combines simulated AirSim telemetry with a regex parser,
+four-column SQLite catalog, JSON/file display, and a separate two-float UDP
+demo. It does not decode or encode J-series fields: the “ICD” is six invented
+message-name rows, the terminal lists every row beside unrelated telemetry, and
+the UDP path never uses the database or a J-message identifier.
 
-The repository uses the PolyForm Noncommercial 1.0.0 license, so it is
-source-available rather than open source for a commercial organization. Its
-potential value lies in ETL and integration ideas, subject to provenance,
-technical, and license review—not direct adoption.
+The current head is PolyForm Noncommercial, while its license-change NOTICE
+preserves the functionally identical parent under Apache-2.0. Historical code
+is therefore available, but it offers little to adopt: the regex is coupled to
+the mock format, the bundled database is incompatible with current scripts,
+one message name conflicts with earlier public projects, and no fact has source
+or revision provenance. See the [completed deep analysis](research/04-airsim-tdl-surrogate.md).
 
 ## Adding candidates
 
