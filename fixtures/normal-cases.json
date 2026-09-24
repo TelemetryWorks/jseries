@@ -1,0 +1,182 @@
+[
+  {
+    "id": "normal-D",
+    "baseline": "D",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "25",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  },
+  {
+    "id": "normal-E",
+    "baseline": "E",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "50",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  },
+  {
+    "id": "normal-F",
+    "baseline": "F",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "75",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  },
+  {
+    "id": "normal-F-C1",
+    "baseline": "F-C1",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "100",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  },
+  {
+    "id": "normal-G",
+    "baseline": "G",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "125",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  },
+  {
+    "id": "normal-H",
+    "baseline": "H",
+    "message": "SYNTH-01",
+    "word_hex": "0765",
+    "expected": {
+      "mode": {
+        "raw": "1",
+        "status": "value",
+        "label": "active"
+      },
+      "level": {
+        "raw": "25",
+        "status": "value",
+        "numerator": "250",
+        "denominator": "1",
+        "unit": "test_units"
+      },
+      "auxiliary": {
+        "raw": "7",
+        "status": "value",
+        "unsigned": "7"
+      },
+      "flags": {
+        "raw": "0",
+        "status": "value",
+        "label": "none"
+      }
+    }
+  }
+]

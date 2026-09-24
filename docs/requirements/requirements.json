@@ -1,0 +1,719 @@
+{
+  "requirements_version": "0.1.0",
+  "notice": "Project requirements, not claimed quotations from MIL-STD-6016. Rust tests supplied but not executed.",
+  "requirements": [
+    {
+      "id": "L1-001",
+      "level": 1,
+      "parent": null,
+      "requirement": "Provide explicitly scoped support for requested D-through-H baselines.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L1-002",
+      "level": 1,
+      "parent": null,
+      "requirement": "Preserve field and interpretation fidelity without silent coercion.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L1-003",
+      "level": 1,
+      "parent": null,
+      "requirement": "Retain evidence sufficient to identify decoding inputs and definitions.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L1-004",
+      "level": 1,
+      "parent": null,
+      "requirement": "Support robust operation and verification in approved offline environments.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L1-005",
+      "level": 1,
+      "parent": null,
+      "requirement": "Separate capture handling, decoding, output, and state reconstruction.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-BASE",
+      "level": 2,
+      "parent": "L1-001",
+      "requirement": "Select and isolate a precise effective baseline.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-SOURCE",
+      "level": 2,
+      "parent": "L1-001",
+      "requirement": "Qualify definitions against registered authoritative sources.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-COVER",
+      "level": 2,
+      "parent": "L1-001",
+      "requirement": "Report actual scope and evidence without invented denominators.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-FIELD",
+      "level": 2,
+      "parent": "L1-002",
+      "requirement": "Extract and interpret supported encodings with explicit status.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-SCHEMA",
+      "level": 2,
+      "parent": "L1-002",
+      "requirement": "Reject malformed or unresolved schema definitions.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-CONTEXT",
+      "level": 2,
+      "parent": "L1-002",
+      "requirement": "Resolve conditional meaning without guessing unavailable context.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-PROV",
+      "level": 2,
+      "parent": "L1-003",
+      "requirement": "Retain raw data references and reproducible definition identities.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-SEC",
+      "level": 2,
+      "parent": "L1-004",
+      "requirement": "Bound parsing and prevent unqualified use of definitions.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-OPS",
+      "level": 2,
+      "parent": "L1-004",
+      "requirement": "Provide offline, cross-platform build and test evidence.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L2-INGEST",
+      "level": 2,
+      "parent": "L1-005",
+      "requirement": "Maintain independently verifiable component boundaries.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-REV-001",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Accept only exact requested baseline identifiers; no implicit newest baseline.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_rev_001_exact_baseline_roundtrip",
+        "crates/l16-core/tests/foundation.rs::req_rev_001_unknown_baseline_is_rejected"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-REV-002",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Treat F and F-C1 as distinct document baseline identities.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_rev_002_f_change_one_is_distinct"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_f_and_f_change_one_have_different_identity"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-REV-003",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Reject mismatched bundles and unsupported messages without cross-revision fallback.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_rev_003_mismatched_bundle_is_rejected",
+        "crates/l16-core/tests/foundation.rs::req_rev_003_no_cross_revision_fallback"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_h_only_message_is_not_in_d"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-REV-004",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Exercise independently specified synthetic differences and equivalences across all six identities.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_rev_004_all_six_literal_golden_cases",
+        "crates/l16-core/tests/foundation.rs::req_rev_004_unchanged_toy_definition_is_equivalent"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_all_six_hand_established_golden_cases"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-REV-005",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Keep independent decoder instances isolated from each other's baseline selection.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_rev_005_independent_instances_keep_their_baseline"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-AUTH-001",
+      "level": 3,
+      "parent": "L2-SEC",
+      "requirement": "Prevent synthetic bundles from entering standards-decode mode.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_auth_001_every_standards_decode_is_blocked"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_non_synthetic_input_is_rejected"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-AUTH-002",
+      "level": 3,
+      "parent": "L2-COVER",
+      "requirement": "Do not claim that real J-message definitions are included.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_auth_002_real_message_names_are_not_implemented"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-PROV-001",
+      "level": 3,
+      "parent": "L2-PROV",
+      "requirement": "Require bounded nonempty selection evidence and source identifiers.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_prov_001_selection_evidence_is_required_and_bounded",
+        "crates/l16-core/tests/foundation.rs::req_prov_001_source_is_required"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-PROV-002",
+      "level": 3,
+      "parent": "L2-PROV",
+      "requirement": "Retain logical input, source offset, field ranges, raw fields, and selected schema identity.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_prov_002_preserves_raw_word_offsets_and_schema"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-PROV-003",
+      "level": 3,
+      "parent": "L2-PROV",
+      "requirement": "Give bundled synthetic source documents distinct exact-byte content fingerprints.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_prov_003_six_distinct_content_identities"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_digests_are_exact_source_bytes_and_unique"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-BIT-001",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Reject invalid logical word lengths and high bits rather than truncate.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_bit_001_rejects_invalid_word_lengths_and_high_bits"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-BIT-002",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Extract every supported bit position including full 128-bit boundary cases.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_bit_002_checks_every_one_of_128_bit_positions",
+        "crates/l16-core/tests/foundation.rs::req_bit_002_full_width_and_top_bit_extract_without_shift_overflow"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-BIT-003",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Reject zero-width or out-of-bounds field ranges.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_bit_003_rejects_empty_or_out_of_bounds_field"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-BIT-004",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Require input logical word length to match the selected layout.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_bit_004_selected_layout_rejects_word_length_mismatch"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-SEM-001",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Recognize applicable special codes before numeric conversion.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_001_special_is_not_scaled_into_a_number"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_special_before_scale"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SEM-002",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Return invalid status for undefined enumeration codes.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_002_undefined_enum_is_invalid_not_a_guessed_value"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_enum_unknown_not_silently_accepted"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SEM-003",
+      "level": 3,
+      "parent": "L2-CONTEXT",
+      "requirement": "Distinguish false conditions from invalid or special selector context while retaining raw bits.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_003_false_condition_is_not_applicable_but_raw_is_retained",
+        "crates/l16-core/tests/foundation.rs::req_sem_003_special_selector_makes_context_unresolved",
+        "crates/l16-core/tests/foundation.rs::req_sem_003_invalid_selector_makes_context_unresolved",
+        "crates/l16-core/tests/foundation.rs::req_sem_003_applicable_auxiliary_can_have_its_own_special"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_special_selector_is_not_false_condition",
+        "tests/test_schema_tools.py::SchemaChecks.test_false_condition_retains_bits",
+        "tests/test_schema_tools.py::SchemaChecks.test_invalid_selector_is_unresolved"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SEM-004",
+      "level": 3,
+      "parent": "L2-CONTEXT",
+      "requirement": "Evaluate fields in dependency order independently of their source listing order.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_004_dependency_order_is_not_source_field_order"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_reordered_fields_preserve_interpretation"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SEM-005",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Interpret explicit two's-complement widths including signed boundaries.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_005_signed_boundaries_are_explicit_twos_complement"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-SEM-006",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Preserve supported scaling as exact rationals rather than forced floating-point values.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sem_006_rational_scaling_does_not_require_floating_point"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-SCH-001",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject unsupported overlap and out-of-bounds schema fields.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sch_001_rejects_overlapping_fields",
+        "crates/l16-core/tests/foundation.rs::req_sch_001_rejects_out_of_bounds_field"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_overlap_is_rejected",
+        "tests/test_schema_tools.py::SchemaChecks.test_bounds_are_rejected"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SCH-002",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject duplicate field identifiers.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sch_002_rejects_duplicate_field_identity"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-SCH-003",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject missing selectors and conditional dependency cycles.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sch_003_rejects_missing_selector",
+        "crates/l16-core/tests/foundation.rs::req_sch_003_rejects_dependency_cycles"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_missing_selector_is_rejected",
+        "tests/test_schema_tools.py::SchemaChecks.test_dependency_cycle_is_rejected"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SCH-004",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject invalid scales or widths outside the implemented arithmetic subset.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sch_004_rejects_zero_denominator",
+        "crates/l16-core/tests/foundation.rs::req_sch_004_rejects_unsupported_scaled_width"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_invalid_scale_is_rejected"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-SCH-005",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject duplicate, out-of-width, or conflicting normal/special codes.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-core/tests/foundation.rs::req_sch_005_rejects_special_enum_conflict",
+        "crates/l16-core/tests/foundation.rs::req_sch_005_rejects_duplicate_special",
+        "crates/l16-core/tests/foundation.rs::req_sch_005_rejects_out_of_width_code"
+      ],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_special_normal_conflict_is_rejected",
+        "tests/test_schema_tools.py::SchemaChecks.test_duplicate_special_is_rejected"
+      ],
+      "verification_status": "python_passed_rust_not_run"
+    },
+    {
+      "id": "L3-CLI-001",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Require explicit baseline and evidence for the synthetic demo.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_001_no_implicit_baseline",
+        "crates/l16-cli/tests/cli.rs::req_cli_001_no_implicit_selection_evidence"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-002",
+      "level": 3,
+      "parent": "L2-SEC",
+      "requirement": "Mark all demo output synthetic and report its schema identity.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_002_demo_is_clearly_marked"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-003",
+      "level": 3,
+      "parent": "L2-SEC",
+      "requirement": "Refuse standards mode while no qualified schemas are installed.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_003_standards_mode_never_uses_demo_schema"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-004",
+      "level": 3,
+      "parent": "L2-SEC",
+      "requirement": "Reject duplicate and unknown CLI options.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_004_duplicate_option_is_rejected",
+        "crates/l16-cli/tests/cli.rs::req_cli_004_unknown_option_is_rejected"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-005",
+      "level": 3,
+      "parent": "L2-FIELD",
+      "requirement": "Reject malformed CLI words without silently discarding high bits.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_005_high_bits_are_not_silently_truncated"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-006",
+      "level": 3,
+      "parent": "L2-BASE",
+      "requirement": "Reject unknown messages at the CLI without looking in another baseline.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_006_unknown_message_does_not_fall_back_to_h"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-CLI-007",
+      "level": 3,
+      "parent": "L2-COVER",
+      "requirement": "Report all six baseline identities with zero verified standard messages.",
+      "implementation_status": "rust_supplied_uncompiled",
+      "rust_tests": [
+        "crates/l16-cli/tests/cli.rs::req_cli_007_coverage_does_not_claim_real_messages"
+      ],
+      "python_tests": [],
+      "verification_status": "rust_not_run"
+    },
+    {
+      "id": "L3-SRC-001",
+      "level": 3,
+      "parent": "L2-SOURCE",
+      "requirement": "Register all six source baselines; leave unavailable document hashes and approved local locators unset.",
+      "implementation_status": "public_catalog_register_supplied",
+      "rust_tests": [],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_source_register_has_no_invented_document_hashes"
+      ],
+      "verification_status": "python_passed"
+    },
+    {
+      "id": "L3-COV-001",
+      "level": 3,
+      "parent": "L2-COVER",
+      "requirement": "Leave inventory denominators null until a reviewed authoritative inventory exists.",
+      "implementation_status": "coverage_register_supplied",
+      "rust_tests": [],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_coverage_denominators_remain_unknown"
+      ],
+      "verification_status": "python_passed"
+    },
+    {
+      "id": "L3-GEN-001",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reproduce generated Rust from exact synthetic JSON sources and detect stale generated files.",
+      "implementation_status": "python_implemented",
+      "rust_tests": [],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_generated_rust_is_current",
+        "tests/test_schema_tools.py::SchemaChecks.test_six_synthetic_schemas_validate"
+      ],
+      "verification_status": "python_passed"
+    },
+    {
+      "id": "L3-GEN-002",
+      "level": 3,
+      "parent": "L2-SCHEMA",
+      "requirement": "Reject unknown/duplicate JSON keys, invalid numeric types/codes, and oversized schema files.",
+      "implementation_status": "python_implemented",
+      "rust_tests": [],
+      "python_tests": [
+        "tests/test_schema_tools.py::SchemaChecks.test_unknown_keys_are_rejected",
+        "tests/test_schema_tools.py::SchemaChecks.test_duplicate_json_keys_are_rejected",
+        "tests/test_schema_tools.py::SchemaChecks.test_file_size_is_bounded",
+        "tests/test_schema_tools.py::SchemaChecks.test_bool_is_not_accepted_as_numeric_width",
+        "tests/test_schema_tools.py::SchemaChecks.test_noncanonical_code_is_rejected"
+      ],
+      "verification_status": "python_passed"
+    },
+    {
+      "id": "L3-OPS-001",
+      "level": 3,
+      "parent": "L2-OPS",
+      "requirement": "Build and test without public package downloads on pre-provisioned offline runners.",
+      "implementation_status": "ci_configuration_supplied_unexecuted",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-OPS-002",
+      "level": 3,
+      "parent": "L2-OPS",
+      "requirement": "Record actual Windows and RHEL compile/test results and exact toolchain versions.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-ING-001",
+      "level": 3,
+      "parent": "L2-INGEST",
+      "requirement": "Normalize actual capture packing using an identified interface specification and preserve source bytes.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-ING-002",
+      "level": 3,
+      "parent": "L2-INGEST",
+      "requirement": "Assemble real messages using verified rules, source keys, completeness checks, and bounded resources.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-REL-001",
+      "level": 3,
+      "parent": "L2-SOURCE",
+      "requirement": "Install only real schema packages qualified for declared scope by a reviewed evidence and trust chain.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-PROV-004",
+      "level": 3,
+      "parent": "L2-PROV",
+      "requirement": "Identify real capture, adapter, schema compiler, decoder build, and output contract for reproducible replay.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-VAL-001",
+      "level": 3,
+      "parent": "L2-INGEST",
+      "requirement": "Keep stateful validation and carried-forward track state separate from received decoded events.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    },
+    {
+      "id": "L3-DIFF-001",
+      "level": 3,
+      "parent": "L2-SOURCE",
+      "requirement": "Review adjacent authoritative baseline changes and record verified equivalence before sharing definitions.",
+      "implementation_status": "planned",
+      "rust_tests": [],
+      "python_tests": [],
+      "verification_status": "not_verified"
+    }
+  ]
+}

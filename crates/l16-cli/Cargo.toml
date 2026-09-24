@@ -1,0 +1,16 @@
+[package]
+name = "l16-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "l16-inspect"
+path = "src/main.rs"
+
+[dependencies]
+l16-core = { path = "../l16-core" }
+
+[lints]
+workspace = true

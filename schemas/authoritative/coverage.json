@@ -1,0 +1,60 @@
+{
+  "report_version": 1,
+  "scope": "MIL-STD-6016 standards decoding; excludes all synthetic tests",
+  "baselines": [
+    {
+      "baseline": "D",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    },
+    {
+      "baseline": "E",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    },
+    {
+      "baseline": "F",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    },
+    {
+      "baseline": "F-C1",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    },
+    {
+      "baseline": "G",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    },
+    {
+      "baseline": "H",
+      "inventory_status": "not_established",
+      "inventory_total": null,
+      "declared_scope_total": null,
+      "implemented_standard_messages": 0,
+      "verified_standard_messages": 0,
+      "conformance_claim": false
+    }
+  ]
+}

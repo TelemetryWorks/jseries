@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Link 16 fixed-format message data picture</title>
+  <desc id="desc">A layered diagram showing a J-series message assembled from initial, extension, and continuation words; each logical word's 70 data bits, 5 parity bits, and 5 transport padding bits; structural fields for each word format; and the surrounding SIMPLE transport envelope.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; }
+      .title { fill: #0f172a; font: 700 34px Arial, Helvetica, sans-serif; }
+      .subtitle { fill: #475569; font: 18px Arial, Helvetica, sans-serif; }
+      .section { fill: #0f172a; font: 700 22px Arial, Helvetica, sans-serif; }
+      .label { fill: #0f172a; font: 700 17px Arial, Helvetica, sans-serif; }
+      .body { fill: #334155; font: 16px Arial, Helvetica, sans-serif; }
+      .small { fill: #475569; font: 14px Arial, Helvetica, sans-serif; }
+      .tiny { fill: #475569; font: 12px Arial, Helvetica, sans-serif; }
+      .center { text-anchor: middle; }
+      .word-data { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; }
+      .parity { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .padding { fill: #e2e8f0; stroke: #64748b; stroke-width: 2; }
+      .transport { fill: #dcfce7; stroke: #16a34a; stroke-width: 2; }
+      .controlled { fill: #fee2e2; stroke: #dc2626; stroke-width: 2; }
+      .header { fill: #bfdbfe; stroke: #2563eb; stroke-width: 1.5; }
+      .arrow { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1600" height="1120" />
+  <text class="title" x="70" y="58">Link 16 fixed-format message: data, word, and transport layers</text>
+  <text class="subtitle" x="70" y="90">Public-source model — logical bit positions shown; byte packing is transport-specific</text>
+
+  <!-- Message assembly -->
+  <rect class="panel" x="55" y="120" width="1490" height="205" rx="14" />
+  <text class="section" x="85" y="157">1. J-series message assembly</text>
+  <text class="small" x="85" y="183">A message is a sequence of fixed-format words. Exact permitted forms and counts are message-specific.</text>
+  <rect class="word-data" x="95" y="215" width="350" height="72" rx="10" />
+  <text class="label center" x="270" y="245">Initial word — required</text>
+  <text class="small center" x="270" y="269">establishes label + sublabel context</text>
+  <path class="arrow" d="M445 251 H530" />
+  <rect class="word-data" x="540" y="215" width="390" height="72" rx="10" />
+  <text class="label center" x="735" y="245">Extension word(s)</text>
+  <text class="small center" x="735" y="269">message-dependent structure</text>
+  <path class="arrow" d="M930 251 H1015" />
+  <rect class="word-data" x="1025" y="215" width="420" height="72" rx="10" />
+  <text class="label center" x="1235" y="245">Continuation word(s) — optional</text>
+  <text class="small center" x="1235" y="269">continuation label selects a form</text>
+
+  <!-- Logical word and transport container -->
+  <rect class="panel" x="55" y="350" width="1490" height="245" rx="14" />
+  <text class="section" x="85" y="388">2. One word carried by a simulation transport</text>
+  <text class="small" x="85" y="414">The 80-bit container is not 80 bits of message data. Segment widths below are illustrative, not proportional.</text>
+  <rect class="word-data" x="95" y="455" width="900" height="92" rx="8" />
+  <text class="label center" x="545" y="487">70 bits — fixed-word-format message data</text>
+  <text class="body center" x="545" y="516">logical bits 0–69</text>
+  <text class="small center" x="545" y="539">word format + structural fields + message-specific payload</text>
+  <rect class="parity" x="1010" y="455" width="220" height="92" rx="8" />
+  <text class="label center" x="1120" y="487">5 bits — parity</text>
+  <text class="body center" x="1120" y="516">logical bits 70–74</text>
+  <text class="small center" x="1120" y="539">may be zero in simulation</text>
+  <rect class="padding" x="1245" y="455" width="220" height="92" rx="8" />
+  <text class="label center" x="1355" y="487">5 bits — padding</text>
+  <text class="body center" x="1355" y="516">container bits 75–79</text>
+  <text class="small center" x="1355" y="539">not J-message content</text>
+  <path class="arrow" d="M95 571 H1465" />
+  <rect class="transport" x="560" y="555" width="440" height="34" rx="17" />
+  <text class="label center" x="780" y="578">80 bits total = 10 bytes = five 16-bit units</text>
+
+  <!-- Structural detail -->
+  <rect class="panel" x="55" y="620" width="1490" height="285" rx="14" />
+  <text class="section" x="85" y="658">3. Publicly visible structure inside the 70 data bits</text>
+  <text class="small" x="85" y="684">Bit numbering follows the logical little-endian value used by the public Wireshark/SIMPLE model.</text>
+  <text class="label" x="85" y="735">Initial</text>
+  <rect class="header" x="200" y="705" width="125" height="48" />
+  <rect class="header" x="325" y="705" width="175" height="48" />
+  <rect class="header" x="500" y="705" width="145" height="48" />
+  <rect class="header" x="645" y="705" width="135" height="48" />
+  <rect class="controlled" x="780" y="705" width="675" height="48" />
+  <text class="small center" x="262" y="727">WF</text><text class="tiny center" x="262" y="745">bits 0–1</text>
+  <text class="small center" x="412" y="727">Label</text><text class="tiny center" x="412" y="745">bits 2–6</text>
+  <text class="small center" x="572" y="727">Sublabel</text><text class="tiny center" x="572" y="745">bits 7–9</text>
+  <text class="small center" x="712" y="727">MLI</text><text class="tiny center" x="712" y="745">bits 10–12</text>
+  <text class="small center" x="1117" y="735">Message-specific fields — bits 13–69</text>
+  <text class="label" x="85" y="802">Extension</text>
+  <rect class="header" x="200" y="772" width="125" height="48" />
+  <rect class="controlled" x="325" y="772" width="1130" height="48" />
+  <text class="small center" x="262" y="794">WF</text><text class="tiny center" x="262" y="812">bits 0–1</text>
+  <text class="small center" x="890" y="802">Extension structure and fields — bits 2–69</text>
+  <text class="label" x="85" y="869">Continuation</text>
+  <rect class="header" x="200" y="839" width="125" height="48" />
+  <rect class="header" x="325" y="839" width="265" height="48" />
+  <rect class="controlled" x="590" y="839" width="865" height="48" />
+  <text class="small center" x="262" y="861">WF</text><text class="tiny center" x="262" y="879">bits 0–1</text>
+  <text class="small center" x="457" y="861">Continuation label</text><text class="tiny center" x="457" y="879">bits 2–6</text>
+  <text class="small center" x="1022" y="869">Continuation-specific fields — bits 7–69</text>
+
+  <!-- Transport and evidence boundary -->
+  <rect class="panel" x="55" y="930" width="930" height="145" rx="14" />
+  <text class="section" x="85" y="968">4. SIMPLE capture envelope</text>
+  <rect class="transport" x="85" y="993" width="180" height="50" rx="8" />
+  <text class="small center" x="175" y="1014">TCP / UDP</text><text class="tiny center" x="175" y="1032">Decode As</text>
+  <path class="arrow" d="M265 1018 H325" />
+  <rect class="transport" x="335" y="993" width="210" height="50" rx="8" />
+  <text class="small center" x="440" y="1014">SIMPLE header</text><text class="tiny center" x="440" y="1032">routing + Link 16 metadata</text>
+  <path class="arrow" d="M545 1018 H605" />
+  <rect class="transport" x="615" y="993" width="190" height="50" rx="8" />
+  <text class="small center" x="710" y="1014">10-byte word(s)</text><text class="tiny center" x="710" y="1032">little-endian container</text>
+  <path class="arrow" d="M805 1018 H865" />
+  <rect class="transport" x="875" y="993" width="80" height="50" rx="8" />
+  <text class="small center" x="915" y="1023">Sum</text>
+  <rect class="panel" x="1010" y="930" width="535" height="145" rx="14" />
+  <text class="section" x="1040" y="968">Evidence boundary</text>
+  <rect class="word-data" x="1040" y="993" width="190" height="52" rx="8" />
+  <text class="small center" x="1135" y="1014">Public sources</text>
+  <text class="tiny center" x="1135" y="1033">structure + carriage</text>
+  <rect class="controlled" x="1245" y="993" width="270" height="52" rx="8" />
+  <text class="small center" x="1380" y="1014">Controlled standards</text>
+  <text class="tiny center" x="1380" y="1033">complete fields + processing rules</text>
+  <text class="tiny" x="70" y="1103">Sources: public SISO-STD-002-2021, DSTO-TN-1257, and the pinned Wireshark Link 16/SIMPLE implementation. “Sum” is the SIMPLE additive checksum.</text>
+</svg>

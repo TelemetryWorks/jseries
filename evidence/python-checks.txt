@@ -1,0 +1,35 @@
+6 synthetic schemas validated; Rust tables match
+Traceability valid: 59 requirements; 47 Rust test functions mapped (not executed).
+test_all_six_hand_established_golden_cases (test_schema_tools.SchemaChecks.test_all_six_hand_established_golden_cases) ... ok
+test_bool_is_not_accepted_as_numeric_width (test_schema_tools.SchemaChecks.test_bool_is_not_accepted_as_numeric_width) ... ok
+test_bounds_are_rejected (test_schema_tools.SchemaChecks.test_bounds_are_rejected) ... ok
+test_coverage_denominators_remain_unknown (test_schema_tools.SchemaChecks.test_coverage_denominators_remain_unknown) ... ok
+test_dependency_cycle_is_rejected (test_schema_tools.SchemaChecks.test_dependency_cycle_is_rejected) ... ok
+test_digests_are_exact_source_bytes_and_unique (test_schema_tools.SchemaChecks.test_digests_are_exact_source_bytes_and_unique) ... ok
+test_duplicate_json_keys_are_rejected (test_schema_tools.SchemaChecks.test_duplicate_json_keys_are_rejected) ... ok
+test_duplicate_special_is_rejected (test_schema_tools.SchemaChecks.test_duplicate_special_is_rejected) ... ok
+test_enum_unknown_not_silently_accepted (test_schema_tools.SchemaChecks.test_enum_unknown_not_silently_accepted) ... ok
+test_f_and_f_change_one_have_different_identity (test_schema_tools.SchemaChecks.test_f_and_f_change_one_have_different_identity) ... ok
+test_false_condition_retains_bits (test_schema_tools.SchemaChecks.test_false_condition_retains_bits) ... ok
+test_file_size_is_bounded (test_schema_tools.SchemaChecks.test_file_size_is_bounded) ... ok
+test_generated_rust_is_current (test_schema_tools.SchemaChecks.test_generated_rust_is_current) ... ok
+test_h_only_message_is_not_in_d (test_schema_tools.SchemaChecks.test_h_only_message_is_not_in_d) ... ok
+test_invalid_scale_is_rejected (test_schema_tools.SchemaChecks.test_invalid_scale_is_rejected) ... ok
+test_invalid_selector_is_unresolved (test_schema_tools.SchemaChecks.test_invalid_selector_is_unresolved) ... ok
+test_missing_selector_is_rejected (test_schema_tools.SchemaChecks.test_missing_selector_is_rejected) ... ok
+test_non_synthetic_input_is_rejected (test_schema_tools.SchemaChecks.test_non_synthetic_input_is_rejected) ... ok
+test_noncanonical_code_is_rejected (test_schema_tools.SchemaChecks.test_noncanonical_code_is_rejected) ... ok
+test_overlap_is_rejected (test_schema_tools.SchemaChecks.test_overlap_is_rejected) ... ok
+test_reordered_fields_preserve_interpretation (test_schema_tools.SchemaChecks.test_reordered_fields_preserve_interpretation) ... ok
+test_six_synthetic_schemas_validate (test_schema_tools.SchemaChecks.test_six_synthetic_schemas_validate) ... ok
+test_source_register_has_no_invented_document_hashes (test_schema_tools.SchemaChecks.test_source_register_has_no_invented_document_hashes) ... ok
+test_special_before_scale (test_schema_tools.SchemaChecks.test_special_before_scale) ... ok
+test_special_normal_conflict_is_rejected (test_schema_tools.SchemaChecks.test_special_normal_conflict_is_rejected) ... ok
+test_special_selector_is_not_false_condition (test_schema_tools.SchemaChecks.test_special_selector_is_not_false_condition) ... ok
+test_unknown_keys_are_rejected (test_schema_tools.SchemaChecks.test_unknown_keys_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.008s
+
+OK
+Rust compile/test NOT performed by this command; use --rust on a provisioned runner.

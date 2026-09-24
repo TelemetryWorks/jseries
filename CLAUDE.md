@@ -6,18 +6,22 @@ divergent instructions for individual assistants.
 
 ## Project overview
 
-`jseries` is a new TelemetryWorks repository. Its product scope, implementation
-language, architecture, and supported environments have not yet been recorded
-in the repository. Do not infer those decisions from the repository name.
+`jseries` is a research foundation for a J-series message toolkit with a Rust
+core and planned Python bindings. The current implementation is a synthetic
+decoder framework, not an operational Link 16 decoder.
 
-At present, the repository contains no implementation or committed history.
-Treat this as a deliberate bootstrap phase: make foundational decisions
-explicit and easy to revise, but do not add speculative structure or tooling
-before it serves an agreed requirement.
+TelemetryWorks cannot lawfully obtain the controlled MIL-STD-6016 revisions
+through an authorized channel. The project is permanently bounded to lawfully
+available, unrestricted public Internet sources unless the owner explicitly
+changes that constraint. Read the **Public-source-only boundary** in `README.md`
+before making product, schema, or capability decisions. Never convert a public
+reconstruction or agreement between implementations into a standards-
+conformance claim.
 
-As the project takes shape, replace this section with a concrete description
-of what the software does, who uses it, and which boundaries or external
-systems matter.
+The initial repository was generated as a proposal and has not yet been
+accepted as the final design. Preserve its fail-closed separation between
+synthetic and standards modes while the sequential ecosystem studies in
+`docs/ROADMAP.md` determine what to retain, replace, or remove.
 
 ## Sources of truth
 
@@ -33,9 +37,9 @@ Raise consequential contradictions instead of silently choosing one. Do not
 change product behavior, public interfaces, data formats, compatibility
 targets, security posture, or dependency policy merely to make a check pass.
 
-`CONVERSATION.md` currently has no content and establishes no requirements. If
-it later records decisions, preserve their context and reconcile them with the
-sources above rather than treating every discussion as settled policy.
+`CONVERSATION.md` records the historical discussion that led to the starter.
+It contains hypotheses and earlier recommendations, not settled requirements.
+Current explicit decisions and maintained repository documents supersede it.
 
 ## Before making changes
 
@@ -51,31 +55,37 @@ sources above rather than treating every discussion as settled policy.
 
 ## Development commands
 
-No build, test, lint, format, or run commands are defined yet. Do not present a
-tool's default command as a repository convention until the corresponding
-configuration is committed.
+Use an already provisioned Python 3.10+ and Rust toolchain. The project must not
+download or update toolchains implicitly.
 
-When introducing the first development workflow:
+```text
+python tools/bundle_manifest.py --check  # verify SHA256SUMS
+python tools/check.py                    # Python/schema checks only
+python tools/check.py --rust             # full debug and release Rust gate
+cargo fmt --all                          # format handwritten Rust
+```
 
-- provide one obvious setup path and one obvious verification command;
-- prefer commands that behave consistently locally and in CI;
-- pin or constrain tool versions where reproducibility depends on them;
-- document the commands here and in the user-facing README as appropriate;
-- avoid adding a dependency or framework solely for a trivial task that the
-  chosen platform already handles well.
-
-Once commands exist, replace this section with exact, runnable commands and a
-short explanation of what each one verifies.
+`tools/check.py --rust` requires Cargo, rustc, the standard library, and a
+native linker. It runs locked and offline. The non-Rust command does not compile
+or execute Rust and must not be reported as if it did.
 
 ## Architecture and repository layout
 
-No architecture or source layout is established. Let the first real use cases
-shape them. Prefer clear boundaries and straightforward code over abstractions
-created in anticipation of hypothetical requirements.
+The current proposal separates the decoder core, CLI, synthetic schemas,
+verification fixtures, and engineering documentation:
 
-When a stable layout emerges, document the important paths here. Add scoped
-instruction files only when a subtree genuinely needs different rules; the
-nearest instruction file should refine, not duplicate or contradict, this one.
+- `crates/l16-core/` — checked words, schema validation, and decoding results.
+- `crates/l16-cli/` — offline command-line interface.
+- `schemas/synthetic/` — deliberately invented test definitions.
+- `schemas/authoritative/` — an empty/zero-coverage register; it contains no
+  authoritative schemas despite the historical directory name.
+- `docs/` — architecture, contracts, requirements, decisions, and roadmap.
+- `tools/` and `tests/` — standard-library schema generation and verification.
+
+Treat this layout as a proposal until the roadmap's project studies and
+synthesis are complete. Prefer clear boundaries and straightforward code over
+abstractions created for hypothetical requirements. Add scoped instruction
+files only when a subtree genuinely needs different rules.
 
 ## Implementation standards
 
