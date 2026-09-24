@@ -20,19 +20,15 @@ support.
 
 ## Research method
 
-Study the candidate projects below strictly one at a time and in the listed
-order. Finish and review one report before beginning the next so that findings
-from a later project do not silently alter the evidence recorded for an earlier
-one.
+Study the remaining candidate below before beginning the cross-project
+synthesis. Completed studies and their status are recorded in
+`docs/OPEN-SOURCE-PROJECTS.md`, with evidence under `docs/research/`; they are
+removed from this forward-looking document.
 
-The inventory currently contains two open-source projects and two
-source-available comparison projects:
+The remaining individual study is source-available rather than open source:
 
 | Project | Current license posture to verify at pinned commit |
 |---|---|
-| Ersatz-MIL-STD-6016 | Unlicense; open source |
-| Wireshark | GPL-2.0-or-later for the relevant dissector; open source |
-| SENTINEL | View/study-only custom terms; not open source |
 | AirSim-TDL-Surrogate | PolyForm Noncommercial 1.0.0; source-available, not open source |
 
 The pinned license text, not this planning summary, will govern each study.
@@ -68,89 +64,6 @@ license/reuse assessment, reproducible test notes, defects and uncertainties,
 alignment/competition analysis, and recommendations. Use neutral descriptions:
 "competes" means overlapping user-visible capability, not that either project
 is authoritative or commercially viable.
-
-## Study 1 — Ersatz-MIL-STD-6016
-
-Repository: <https://github.com/liotier/Ersatz-MIL-STD-6016>
-
-This is the first study because its machine-readable public reconstruction is
-the closest apparent overlap with the schema role proposed for `jseries`.
-
-The analysis will:
-
-- audit the structure and completeness of `link16-schema.json`, including the
-  meaning of its confidence values and whether layouts contain enough detail
-  for bit-level decoding rather than message-name lookup;
-- measure actual coverage by message, word form, field, interpretation, and
-  source citation instead of relying on the headline message count;
-- determine whether DFI/DUI identities, units, scaling, exceptional values,
-  conditional meanings, validation rules, and revision identities are present;
-- trace reconstructed facts through the files in `sources/` and flag facts that
-  cannot be tied to a specific public locator;
-- validate internal ranges, overlaps, identifiers, references, and example
-  values with independent tooling;
-- assess whether its Unlicense grant covers every bundled artifact and source
-  document relevant to possible reuse; and
-- compare direct schema reuse or conversion with maintaining a separate
-  `jseries` evidence model and treating Ersatz as an external data provider.
-
-Planned report: `docs/research/01-ersatz-mil-std-6016.md`.
-
-## Study 2 — Wireshark Link 16 and SIMPLE dissectors
-
-Repository: <https://github.com/wireshark/wireshark>
-
-The analysis will cover `packet-link16.c`, its state interface,
-`packet-simple.c`, any other verified callers that supply normalized message
-data, relevant tests, and public sample captures.
-
-The analysis will:
-
-- document exact byte order, bit numbering, word-format extraction, label and
-  sublabel handling, message-length information, extension sequencing, and
-  continuation-label state;
-- follow the complete call path from supported encapsulations into the Link 16
-  dissector so capture framing is not confused with J-series semantics;
-- identify the public references cited by the code and the age or revision
-  assumptions behind its tables;
-- run selected captures through a pinned Wireshark/TShark build and preserve
-  expected structural output as external comparison evidence;
-- establish precisely what Wireshark does not decode, especially field-level
-  layouts and DFI/DUI semantics;
-- assess GPL-2.0-or-later implications separately for copying code, porting an
-  algorithm, invoking TShark as a test oracle, and recording factual test
-  results; and
-- compare its mature capture integration with the intentionally transport-free
-  `jseries` core boundary.
-
-Planned report: `docs/research/02-wireshark-link16.md`.
-
-## Study 3 — SENTINEL data-link module
-
-Repository: <https://github.com/bwiemz/sentinel>
-
-SENTINEL is publicly viewable, but its current repository terms restrict
-copying, reuse, modification, redistribution, and commercial use. Unless those
-terms change or written permission is obtained, this study will inspect it only
-as a non-reusable comparison project and will not copy code, schemas, fixtures,
-or tests.
-
-The analysis will:
-
-- isolate the data-link package from the larger sensor, tracking, and targeting
-  simulation and inventory its claimed J2.2, J3.2, J3.5, and J7.0 behavior;
-- determine which layouts and validations are explicitly synthetic or toy and
-  whether any claimed STANAG or J-series facts have public source locators;
-- inspect its bit reader/writer, message dataclasses, encoder/decoder symmetry,
-  validators, gateway, transport abstraction, and track-number mapping;
-- run only those tests and demonstrations permitted by the repository terms,
-  without importing their artifacts into `jseries`;
-- compare its Python API and bidirectional simulation workflow with the planned
-  Rust core and Python bindings; and
-- record architectural lessons independently, with clean-room notes that do
-  not reproduce protected implementation expression.
-
-Planned report: `docs/research/03-sentinel-datalink.md`.
 
 ## Study 4 — AirSim-TDL-Surrogate
 

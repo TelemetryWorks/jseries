@@ -12,7 +12,7 @@ results live under `docs/research/`; this catalog remains the concise index.
 |---|---|---|---|
 | [Ersatz-MIL-STD-6016](https://github.com/liotier/Ersatz-MIL-STD-6016) | Unlicense; open source | Public reconstruction and browsable J-message catalog | [Analyzed](research/01-ersatz-mil-std-6016.md) |
 | [Wireshark](https://github.com/wireshark/wireshark) | GPL-2.0-or-later for relevant dissectors; open source | Link 16 word identification plus SIMPLE capture framing | [Analyzed](research/02-wireshark-link16.md) |
-| [SENTINEL](https://github.com/bwiemz/sentinel) | Custom view/study-only terms; not open source | Toy Python J-series encode/decode inside a sensor simulation | Planned |
+| [SENTINEL](https://github.com/bwiemz/sentinel) | Custom view/study-only terms; not open source | Toy Python J-series encode/decode inside a sensor simulation | [Analyzed](research/03-sentinel-datalink.md) |
 | [AirSim-TDL-Surrogate](https://github.com/MichaelFowler1/AirSim-TDL-Surrogate) | PolyForm Noncommercial 1.0.0; source-available | Mock-ICD ETL, SQLite lookup, and simulated tactical display | Planned |
 
 License descriptions are planning summaries. Every deep analysis pins and
@@ -51,15 +51,17 @@ normative data. See the [completed deep analysis](research/02-wireshark-link16.m
 ## SENTINEL
 
 SENTINEL is a large Python educational/research sensor and tracking simulation.
-Its data-link package advertises bit-level toy versions of J2.2, J3.2, J3.5,
-and J7.0, including dataclasses, encoding/decoding, validation, a gateway, and
-an in-memory transport.
+Its data-link package implements immutable data classes, bit packing,
+bidirectional codecs and adapters, numeric validation, track-number allocation,
+an in-memory gateway, diagnostics, and 205 focused test functions.
 
-The repository itself calls these formats simulated rather than real-world
-interfaces. Its license permits viewing and personal study but prohibits reuse
-without permission, so it is not an open-source dependency candidate. The
-analysis will focus on independently described architecture and API lessons;
-no code, schema, fixture, or test will be copied into `jseries`.
+Those are toy packets, not J-series words. All four advertised identifiers have
+meanings that conflict with the earlier public project mappings, packet sizes
+are bespoke, one declared size contradicts its encoder, and no field has source
+or revision provenance. The restrictive root license also conflicts with an
+`MIT` string in package metadata; direct reuse is excluded. The useful output
+is an independently described end-to-end architecture lesson, not code or
+message data. See the [completed deep analysis](research/03-sentinel-datalink.md).
 
 ## AirSim-TDL-Surrogate
 
