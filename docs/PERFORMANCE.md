@@ -10,8 +10,10 @@ Criterion contains single-word latency and 1,024-message batch-throughput cases:
 cargo bench -p jseries-core --bench decode --locked
 ```
 
-The installed-wheel benchmark measures the complete Python path, including
-conversion of Python integers, native calls, decoding, and Python result objects:
+The installed-wheel benchmark separately measures the return path and the path
+that accesses every decoded field. Together they expose Python integer
+conversion, native calls, decoding, record wrapping, and lazy field-object
+materialization:
 
 ```text
 python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single

@@ -136,5 +136,7 @@ Run the Python boundary benchmark against an installed release wheel:
 python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
-Treat results as local measurements and record CPU, operating system, Python,
-Rust, and commit information before comparing runs.
+The output distinguishes batch return time, batch decoding plus access to every
+field, and the optional per-row call loop. Treat results as local measurements
+and record CPU, operating system, Python, Rust, and commit information before
+comparing runs.

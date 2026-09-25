@@ -24,6 +24,14 @@ def measure(callable_: Callable[[], Result], iterations: int) -> tuple[float, Re
     return statistics.median(samples), result
 
 
+def decode_and_consume_fields(
+    decoder: jseries.Decoder, rows: list[list[int]]
+) -> tuple[list[jseries.DecodedRecord], int]:
+    records = decoder.decode_many_logical70("EXAMPLE-70", rows)
+    checksum = sum(field.raw for record in records for field in record.fields)
+    return records, checksum
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--rows", type=int, default=10_000)
@@ -44,6 +52,17 @@ def main() -> int:
         raise RuntimeError("batch benchmark returned the wrong number of records")
     print(
         f"batch rows={arguments.rows} median={elapsed:.6f}s "
+        f"messages_per_second={arguments.rows / elapsed:,.0f}"
+    )
+
+    elapsed, consumed = measure(
+        lambda: decode_and_consume_fields(decoder, rows), arguments.iterations
+    )
+    records, checksum = consumed
+    if len(records) != arguments.rows or checksum == 0:
+        raise RuntimeError("field-consumption benchmark returned invalid results")
+    print(
+        f"batch-with-field-access rows={arguments.rows} median={elapsed:.6f}s "
         f"messages_per_second={arguments.rows / elapsed:,.0f}"
     )
 
