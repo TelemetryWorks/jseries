@@ -1,15 +1,7 @@
-# ADR-0003: Generate immutable runtime tables from reviewed sources
+# ADR-0003: Immutable decode plans
 
-Status: Proposed; reflected in increment 0.1
+Status: Amended by ADR-0009
 
-## Context
+Runtime field decoding must not repeatedly parse an authoring format or resolve symbolic references. ADR-0009 replaces generated Rust tables with user-supplied TOML, while retaining this performance decision: package loading is a cold path that produces immutable validated core structures and precomputed decoder indices.
 
-Runtime field decoding should not parse JSON or resolve document changes repeatedly. Offline operation should avoid unnecessary dependencies.
-
-## Decision
-
-Use Python standard-library tooling to validate toy JSON and generate Rust tables before building. Embed exact source-byte SHA-256 and verify generated-code freshness.
-
-## Consequences
-
-Schema edits require regeneration and rebuild in this increment. Dynamic signed schema loading remains future work. Generator identity and build identity must be included in production provenance.
+Schema changes no longer require rebuilding the application. Construction cost is paid when a package is selected; decoding uses the resolved plan.

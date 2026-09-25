@@ -6,9 +6,10 @@ divergent instructions for individual assistants.
 
 ## Project overview
 
-`jseries` is a research foundation for a J-series message toolkit with a Rust
-core and planned Python bindings. The current implementation is a synthetic
-decoder framework, not an operational Link 16 decoder.
+`jseries` is a schema-driven J-series decoding foundation with a Rust core.
+It accepts explicit 70-, 75-, and SIMPLE 80-bit representations and runtime
+TOML packages. It contains no MIL-STD-6016 message definitions and is not a
+standards-conformance implementation.
 
 TelemetryWorks cannot lawfully obtain the controlled MIL-STD-6016 revisions
 through an authorized channel. The project is permanently bounded to lawfully
@@ -18,10 +19,8 @@ before making product, schema, or capability decisions. Never convert a public
 reconstruction or agreement between implementations into a standards-
 conformance claim.
 
-The initial repository was generated as a proposal and has not yet been
-accepted as the final design. Preserve its fail-closed separation between
-synthetic and standards modes while the sequential ecosystem studies in
-`docs/ROADMAP.md` determine what to retain, replace, or remove.
+Preserve explicit source and qualification metadata. Never infer authority
+from a package path or promote public reconstruction to standards content.
 
 ## Sources of truth
 
@@ -59,33 +58,33 @@ Use an already provisioned Python 3.10+ and Rust toolchain. The project must not
 download or update toolchains implicitly.
 
 ```text
-python tools/bundle_manifest.py --check  # verify SHA256SUMS
-python tools/check.py                    # Python/schema checks only
-python tools/check.py --rust             # full debug and release Rust gate
-cargo fmt --all                          # format handwritten Rust
+python tools/check.py                    # complete local gate
+cargo fmt --all                          # format Rust
+cargo test --workspace --locked          # focused Rust verification
 ```
 
-`tools/check.py --rust` requires Cargo, rustc, the standard library, and a
-native linker. It runs locked and offline. The non-Rust command does not compile
-or execute Rust and must not be reported as if it did.
+`tools/check.py` validates traceability, checks rustfmt, denies Clippy warnings,
+and runs locked debug and release Rust tests. It fails if a required tool is
+absent.
 
 ## Architecture and repository layout
 
 The current proposal separates the decoder core, CLI, synthetic schemas,
 verification fixtures, and engineering documentation:
 
-- `crates/l16-core/` — checked words, schema validation, and decoding results.
-- `crates/l16-cli/` — offline command-line interface.
-- `schemas/synthetic/` — deliberately invented test definitions.
-- `schemas/authoritative/` — an empty/zero-coverage register; it contains no
-  authoritative schemas despite the historical directory name.
+- `crates/jseries-core/` — normalization, assembly, schema model, and decode hot path.
+- `crates/jseries-schema/` — strict TOML loading and cold-path resolution.
+- `crates/jseries-cli/` — schema validation, inspection, and decoding CLI.
+- `schemas/` — runnable project-authored TOML starter package and schema guidance.
+- `schemas/` — schema guidance plus public source and coverage metadata; it
+  contains no authoritative message definitions.
 - `docs/` — architecture, contracts, requirements, decisions, and roadmap.
-- `tools/` and `tests/` — standard-library schema generation and verification.
+- `tools/` — repository verification and traceability checks.
 
-Treat this layout as a proposal until the roadmap's project studies and
-synthesis are complete. Prefer clear boundaries and straightforward code over
-abstractions created for hypothetical requirements. Add scoped instruction
-files only when a subtree genuinely needs different rules.
+TOML/filesystem work belongs outside `jseries-core`. Parsing, reference
+resolution, and lookup-table construction must never move into the decode hot
+path. Prefer clear boundaries and straightforward code over abstractions for
+hypothetical requirements.
 
 ## Implementation standards
 

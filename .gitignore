@@ -4,4 +4,4 @@ __pycache__/
 *.log
 /private-schemas/
 /private-fixtures/
-/ci-evidence/
+/evidence/runs/

@@ -1,0 +1,11 @@
+[[cases]]
+name = "logical-70-active"
+message = "EXAMPLE-70"
+input_format = "logical70"
+words = ["0x1c94"]
+
+[[cases]]
+name = "simple-80-active"
+message = "EXAMPLE-70"
+input_format = "simple80"
+words = ["941c0000000000000000"]

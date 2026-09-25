@@ -1,41 +1,17 @@
 # Security boundaries and controls
 
-This is a prototype threat/verification plan, not a completed certification,
-compliance assessment, FIPS claim, or assertion that all malformed inputs are safe.
+This project is not a security certification or standards-conformance implementation.
 
-| Boundary or risk | Current behavior | Remaining gate |
+| Boundary | Current control | Remaining work |
 |---|---|---|
-| Wrong revision | Exact identity selection, evidence text, no fallback | Trusted source assignment and conflict handling for real recordings |
-| Synthetic used as real | Standards mode always refuses; compiler accepts synthetic only | Reviewed qualification and package-installation trust chain |
-| Malformed schema | Bounded source reads, strict keys/types, overlap/cycle/code checks | Rich authoritative schema, signature checks, parser fuzzing |
-| Malformed logical word | Range/high-bit/length checks; unsafe Rust forbidden | Execute Rust tests; fuzz future capture adapters and assembly |
-| Bad measurement | Raw retention, special/invalid/context statuses, checked scaling | Verified standard rules and complete boundary vectors |
-| Resource exhaustion | One small bounded logical word; bounded toy schema sizes | Budgets for readers, sources, assemblies, queues, and batch output |
-| Source tampering | Source digests, generated-code freshness, archive inventory | Authenticated release signatures and approved provenance pipeline |
-| Sensitive output | Only synthetic data bundled; no network path in the core | Explicit logging/redaction and access control for real data |
-| Misleading coverage | Zero real-message coverage; unknown inventory is null | Reviewed inventory and granular qualification reports |
+| Untrusted schema package | 1 MiB file and 16 MiB package limits; strict TOML keys/types; safe relative paths; bounded messages, words, and fields; overlap/reference/cycle/code validation | Reparse-point/symlink policy, parser fuzzing, signatures, approved installation path |
+| Malformed word | Exact 70/75/80 bounds, zero-padding check, preserved parity, checked 70-bit field ranges, unsafe Rust forbidden | Adapter fuzzing, parity policy, source-byte retention |
+| Misleading qualification | Source and qualification carried as explicit author metadata; no standards definitions bundled | Fact-level provenance, trust policy, reviewer workflow, signed releases |
+| Resource exhaustion | Fixed `u128` word representation, 32-word assembly limit, bounded package/model sizes | Bounds for readers, concurrent assemblies, batches, and output queues |
+| Arithmetic/meaning | Exact integer/rational interpretation, explicit special/invalid/not-applicable states | Independently qualified semantic vectors and broader rule model |
+| Sensitive data | No operational captures bundled; core performs no network or file access | Logging/redaction, storage, access, retention, and deletion policy |
+| Supply chain | Locked Cargo dependencies, GitHub workflow with read-only contents permission | Dependency review, CodeQL, SBOM/provenance, action SHA pinning, signing |
 
-`SelectionEvidence` and source offsets are caller-supplied assertions, not
-identity authentication. The in-process `from_bundle` constructor assumes
-trusted compiled code; it does not authenticate arbitrary schemas by checking
-a hash string. SHA-256 identities in bundled sources come from the generation
-process. A mutable `verified` flag must never become the production approval
-mechanism.
+Package metadata is not authenticated proof. Do not decide that a package is authoritative from its path, label, or successful parse. Hashes can identify bytes but do not prove correctness or authorization.
 
-A hash inventory is useful to detect changed files relative to a trusted
-inventory, but it is not a signature or proof of source correctness. This
-package contains neither signing keys nor a signature-verification implementation.
-No crypto assurance is implied by its use of Python's hashlib.
-
-Before adding operational captures, establish approved storage and access for
-raw data, decoded outputs, logs, schema sources, and CI artifacts. Keep recording
-payloads out of routine telemetry by default. Retain raw evidence through an
-approved durable reference rather than leaking it into every log. Define
-retention and deletion behavior per environment; none is guessed here.
-
-Supply-chain gates for deployment should pin and record the chosen compiler,
-platform build environment, source commit, schema/compiler artifacts, and
-approved dependencies. Generate the organization's SBOM and provenance records
-and use its signing/verification process. Those integrations are not implemented.
-A dependency-free prototype does not make compilers, Python, linkers, runners,
-or future schema-generation logic outside the trust boundary.
+Before operational captures are used, establish approved storage and access for raw data, decoded output, logs, schemas, and CI artifacts. Keep payloads out of routine telemetry and preserve raw evidence through controlled references.

@@ -1,0 +1,10 @@
+format_version = 1
+id = "jseries-schema-starter"
+version = "0.1.0"
+baseline = "EXAMPLE"
+profile = "single-word-example"
+qualification = "project-authored-example"
+source = "TelemetryWorks project-authored example; not MIL-STD-6016 data"
+messages = ["messages/example.toml"]
+catalogs = ["catalogs/mode.toml", "catalogs/word-format.toml"]
+vectors = ["vectors/examples.toml"]

@@ -1,36 +1,32 @@
 #!/usr/bin/env python3
-"""Run schema/Python checks; --rust also requires and runs the Rust test suite."""
+"""Run repository checks; Rust execution is never silently skipped."""
 from pathlib import Path
-import argparse
-import shutil
 import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+
+def run(command: list[str]) -> int:
+    print("+", " ".join(command), flush=True)
+    return subprocess.run(command, cwd=ROOT, check=False).returncode
+
 def main() -> int:
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--rust",action="store_true")
-    args=parser.parse_args()
     commands = [
-        [sys.executable,"tools/schema_compile.py","--check"],
-        [sys.executable,"tools/check_traceability.py"],
-        [sys.executable,"-m","unittest","discover","-s","tests","-v"],
+        [sys.executable, "tools/check_traceability.py"],
+        ["cargo", "fmt", "--all", "--", "--check"],
+        ["cargo", "clippy", "--workspace", "--all-targets", "--all-features", "--", "-D", "warnings"],
+        ["cargo", "test", "--workspace", "--locked"],
+        ["cargo", "test", "--workspace", "--locked", "--release"],
     ]
     for command in commands:
-        completed = subprocess.run(command,cwd=ROOT,check=False)
-        if completed.returncode:
-            return completed.returncode
-    if not args.rust:
-        print("Rust compile/test NOT performed by this command; use --rust on a provisioned runner.")
-        return 0
-    if shutil.which("cargo") is None or shutil.which("rustc") is None:
-        print("ERROR: --rust requires cargo and rustc already installed and on PATH.",file=sys.stderr)
-        return 1
-    for command in [["rustc","--version"],["cargo","--version"],
-                    ["cargo","test","--workspace","--locked","--offline"],
-                    ["cargo","test","--workspace","--locked","--offline","--release"]]:
-        completed=subprocess.run(command,cwd=ROOT,check=False)
-        if completed.returncode: return completed.returncode
+        try:
+            code = run(command)
+        except FileNotFoundError as error:
+            print(f"required tool unavailable: {error.filename}", file=sys.stderr)
+            return 1
+        if code:
+            return code
     return 0
-if __name__=="__main__":
+
+if __name__ == "__main__":
     raise SystemExit(main())

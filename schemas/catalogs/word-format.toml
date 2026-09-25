@@ -1,0 +1,13 @@
+id = "EXAMPLE:WORD_FORMAT"
+
+[[entries]]
+raw = "0"
+label = "initial"
+
+[[entries]]
+raw = "1"
+label = "continuation"
+
+[[entries]]
+raw = "2"
+label = "extension"

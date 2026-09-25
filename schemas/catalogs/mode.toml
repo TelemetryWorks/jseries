@@ -1,0 +1,13 @@
+id = "EXAMPLE:MODE"
+
+[[entries]]
+raw = "0"
+label = "idle"
+
+[[entries]]
+raw = "1"
+label = "active"
+
+[[entries]]
+raw = "2"
+label = "standby"

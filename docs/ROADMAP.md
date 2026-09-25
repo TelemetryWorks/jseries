@@ -1,81 +1,58 @@
-# Forward roadmap
+# Forward-looking roadmap
 
-This roadmap contains future work only. Completed investigations and their
-evidence will live in dated reports under `docs/research/`, not in this file.
-Do not mark a study complete here or turn preliminary observations into product
-claims.
+This file contains future work only. Completed research belongs in dated reports under `docs/research/`.
 
-## Governing constraint
+## Priority 0 — evidence consolidation
 
-The project will use only lawfully available, unrestricted public Internet
-sources. TelemetryWorks cannot obtain MIL-STD-6016 through an authorized
-government or contractor channel. The roadmap must therefore optimize for a
-traceable public-evidence implementation, not standards conformance.
+Sort out `evidence/` before expanding semantic coverage:
 
-No public project, capture, patent, paper, presentation, or agreement between
-implementations will be treated as a substitute for the controlled standard.
-The work may establish a useful, precisely scoped decoder, but it must preserve
-unknown and conflicting semantics and must not claim complete D-through-H
-support.
+1. inventory every evidence file, its producer, freshness, scope, and whether it is source-controlled or generated;
+2. designate human-maintained verification policy in `docs/VERIFICATION.md` and runner-generated evidence under `evidence/runs/<date>-<commit>/`;
+3. define a small machine-readable run manifest containing commit, dirty state, toolchain, platform, commands, results, and artifact hashes;
+4. remove duplicate status narratives and never copy a prior run forward as current evidence;
+5. have GitHub Actions publish run evidence as immutable workflow artifacts before deciding which summaries belong in Git;
+6. establish retention, sanitization, provenance, and review rules; and
+7. link requirements and releases to exact workflow runs and public-source fact records.
 
-## Cross-project synthesis
+Completion means every retained artifact has one owner/source, an explicit freshness rule, and no conflicting current-status document.
 
-Only after all four individual reports are reviewed, produce
-`docs/research/05-public-ecosystem-synthesis.md`. It will:
+## Priority 1 — GitHub Actions baseline
 
-- normalize the four capability matrices into one comparison;
-- identify duplicated functionality and gaps that remain unserved;
-- distinguish data/schema assets from decoder engines, transport adapters,
-  simulation tooling, and test oracles;
-- compare source quality and confidence at field granularity;
-- recommend which parts of the current `jseries` starter to retain, refactor,
-  replace, or remove;
-- define the narrowest defensible product scope and wording for public claims;
-  and
-- propose an implementation sequence with explicit evidence and licensing
-  gates.
+- Make the initial cross-platform CI workflow required for protected branches.
+- Run format, Clippy with warnings denied, requirement trace validation, debug tests, release tests, and a Rust 1.86 MSRV job.
+- Enable Dependabot and dependency review after repository policy is agreed.
+- Add CodeQL once the base workflow is stable; add scheduled fuzzing and benchmark monitoring after harnesses exist.
+- Pin action revisions according to organization policy and document secret/permission minimization.
+- Do not reproduce the reference repository's Sonar workflow unless its service, secrets, and value are explicitly approved.
 
-## Engineering gates after research
+## Priority 2 — package contract completion
 
-### Gate A — establish an executable baseline
+- Add expected field/status assertions to vector TOML and execute every vector during validation.
+- Add fact-level provenance records, source locators, confidence, conflicts, license notes, and inference flags.
+- Define package compatibility, integrity/signing, deterministic snapshot, and migration policies.
+- Add safe symlink/reparse-point policy and fuzz the loader.
 
-Compile and run the current Rust debug and release suites on supported Windows
-and Linux toolchains. Record versions, correct build failures, apply formatting,
-and establish lint policy. This proves only the synthetic foundation.
+## Priority 3 — transport and assembly evidence
 
-### Gate B — revise the product contract
+- Validate each named 70/75/80 representation against public interface documentation and independent vectors.
+- Preserve original source bytes, timestamps, offsets, channel/session identity, parity results, and normalization diagnostics.
+- Implement only publicly supported assembly rules; keep incomplete or ambiguous sequences explicit.
 
-Use the synthesis report to replace the current D-through-H aspiration with an
-evidence-bounded scope. Reconcile the README, architecture, requirements,
-schema contract, command names, crate names, and coverage model. Decide whether
-the current implementation is worth evolving or should be replaced before
-adding public reconstructions.
+## Priority 4 — publicly supportable semantics
 
-### Gate C — define a public-evidence schema contract
+- Convert public facts only after license and provenance review.
+- Start with the smallest useful message subset whose every field can cite public evidence.
+- Record conflicts rather than selecting a convenient interpretation.
+- Publish coverage against the declared public-evidence scope, never against the controlled standard.
 
-Represent per-fact source locators, confidence, conflicts, inference status,
-license provenance, and unsupported semantics. Prevent a reconstructed or toy
-schema from being reported as authoritative. Define a reproducible snapshot and
-review process for third-party public data.
+## Priority 5 — keep hot paths hot
 
-### Gate D — prove one public input path and message subset
+- Add single-word, multiword, catalog, conditional, and batch benchmarks with representative distributions.
+- Separate normalization, assembly, field extraction, and output measurements.
+- Add reusable output buffers and batch APIs; measure allocation count before making allocation claims.
+- Establish reviewed regression thresholds and store benchmark metadata/artifacts in CI.
+- Profile before adding caching, SIMD, parallelism, or unsafe code; unsafe remains forbidden until a separate reviewed decision.
 
-Select one openly documented packing format and the smallest message subset
-supported by traceable public evidence. Implement framing, normalization,
-assembly, decoding, and diagnostics without guessing missing semantics. Verify
-against independently derived public vectors or comparison tools where
-available.
+## Priority 6 — product adapters
 
-### Gate E — expand evidence-driven coverage
-
-Prioritize new fields and messages by public-source quality and user value.
-Publish coverage as a denominator of the explicitly declared public-evidence
-scope, never as a percentage of MIL-STD-6016. Preserve unresolved conflicts and
-source-specific variants.
-
-### Gate F — production hardening
-
-Add stable Rust and Python APIs, fuzzing, bounded resource use, deterministic
-replay, sanitized logging, performance measurements, cross-platform CI,
-supply-chain evidence, and a documented compatibility policy. Production
-quality will describe software robustness, not standards conformance.
+Add stable library APIs, capture readers, structured output, Python bindings, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.
