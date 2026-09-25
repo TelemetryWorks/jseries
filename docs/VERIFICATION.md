@@ -28,8 +28,8 @@ The LCOV command also completed locally with cargo-llvm-cov 0.6.21; CI pins
 
 The Python workflow builds and install-tests CPython stable-ABI wheels on
 Windows x86-64 and manylinux x86-64 and tests locally built packages with
-Python 3.10 and 3.14. Those hosted results remain pending until the workflow
-runs for the binding changes.
+Python 3.10 and 3.14. [GitHub Actions run 36088008490](https://github.com/TelemetryWorks/jseries/actions/runs/36088008490)
+passed all six jobs on commit `c08bdf7` and retained both wheel artifacts.
 
 A local Windows CPython 3.12 test built and installed
 `jseries-0.1.0-cp310-abi3-win_amd64.whl`; the installed native module reported
