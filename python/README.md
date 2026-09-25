@@ -2,7 +2,7 @@
 
 The `jseries` Python package is a native extension backed by the repository's
 Rust libraries. It exposes package version information, persistent schema-backed
-decoders, typed decoded records, and single-message or batch logical-70 decoding.
+decoders, typed decoded records, and single-message or batch 70-bit decoding.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ The package has not been published to PyPI. A plain `pip install jseries`
 should not be treated as installing this project until a release workflow and
 trusted PyPI publishing are established.
 
-## Decode logical-70 messages
+## Decode 70-bit messages
 
 Construct `Decoder` once. It loads and validates the TOML package and compiles
 the immutable Rust decode plans; reuse it for every message using that package:
@@ -59,8 +59,8 @@ for field in record.fields:
 ```
 
 The sequence passed as the second argument contains all words for one message.
-Values must contain only the 70 information bits; framing/parity bits are not
-silently accepted as logical-70 data.
+Values must contain only the 70 information bits; any higher bits are rejected.
+Transport framing and packed byte representations are not accepted.
 
 Errors from package loading and decoding derive from `jseries.JSeriesError`.
 Out-of-range Python values and invalid word assembly raise `ValueError`.

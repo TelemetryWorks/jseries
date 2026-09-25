@@ -3,7 +3,7 @@
 
 use jseries_core::{
     AssembledMessage, DecodeContext, DecodedField, DecodedRecord, Decoder as CoreDecoder,
-    FieldStatus, Value, normalize_logical70,
+    FieldStatus, Value, normalize_word,
 };
 use jseries_schema::load_package;
 use pyo3::{
@@ -226,7 +226,7 @@ impl PythonDecoder {
                 return Err(PyValueError::new_err("decode input cannot be empty"));
             }
             let record = py.detach(|| {
-                let message = assemble_logical70(words)?;
+                let message = assemble_words(words)?;
                 self.inner
                     .decode(
                         &message_id,
@@ -253,7 +253,7 @@ impl PythonDecoder {
         let records: Vec<PythonDecodedRecord> = py.detach(|| {
             let messages = rows
                 .into_iter()
-                .map(assemble_logical70)
+                .map(assemble_words)
                 .collect::<PyResult<Vec<_>>>()?;
             self.inner
                 .decode_many(&message_id, &messages, source_id, source_offset)
@@ -269,12 +269,10 @@ impl PythonDecoder {
     }
 }
 
-fn assemble_logical70(words: Vec<u128>) -> PyResult<AssembledMessage> {
+fn assemble_words(words: Vec<u128>) -> PyResult<AssembledMessage> {
     let words = words
         .into_iter()
-        .map(|word| {
-            normalize_logical70(word).map_err(|error| PyValueError::new_err(error.to_string()))
-        })
+        .map(|word| normalize_word(word).map_err(|error| PyValueError::new_err(error.to_string())))
         .collect::<PyResult<Vec<_>>>()?;
     AssembledMessage::new(words).map_err(|error| PyValueError::new_err(error.to_string()))
 }

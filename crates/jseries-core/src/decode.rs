@@ -226,11 +226,7 @@ impl Decoder {
         }
         let mut raw = Vec::with_capacity(spec.fields.len());
         for (field, range) in spec.fields.iter().zip(&compiled.ranges) {
-            raw.push(
-                message.words()[usize::from(field.word)]
-                    .information
-                    .extract(*range),
-            );
+            raw.push(message.words()[usize::from(field.word)].extract(*range));
         }
         let mut statuses = vec![None; raw.len()];
         for &index in &compiled.order {

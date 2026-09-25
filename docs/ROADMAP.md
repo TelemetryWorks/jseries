@@ -22,7 +22,7 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 - Establish reviewed coverage thresholds after representative test coverage and a stable baseline exist.
 - Add dependency review for pull requests, Dependabot updates, `cargo audit`, and a `cargo deny` policy covering advisories, licenses, bans, and sources.
 - Add scheduled Criterion regression reporting after representative benchmarks and stable runner methodology exist; compile every benchmark in ordinary CI meanwhile.
-- Add scheduled fuzzing for transport normalization, assembly, and TOML loading with bounded corpora and artifact retention.
+- Add scheduled fuzzing for 70-bit word validation, assembly, and TOML loading with bounded corpora and artifact retention.
 - Add documentation checks, `cargo semver-checks` once a public API is released, and release workflows that produce an SBOM, attestations, signatures, and checksums for release artifacts.
 - Automate reviewed updates for immutable action pins, define retention for every produced artifact, and connect those artifacts to the evidence plan.
 
@@ -36,7 +36,7 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 ## Priority 3 — transport and assembly evidence
 
 - Validate each named 70/75/80 representation against public interface documentation and independent vectors.
-- Preserve original source bytes, timestamps, offsets, channel/session identity, parity results, and normalization diagnostics.
+- Preserve original source bytes, timestamps, offsets, channel/session identity, and input-validation diagnostics.
 - Implement only publicly supported assembly rules; keep incomplete or ambiguous sequences explicit.
 
 ## Priority 4 — publicly supportable semantics

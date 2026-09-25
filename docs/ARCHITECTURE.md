@@ -2,10 +2,10 @@
 
 ```text
 user TOML package                      input representation
-package + messages + catalogs          logical70 | word75 | simple80
+package + messages + catalogs          70-bit information word
           |                                      |
           v                                      v
-jseries-schema (cold path)              explicit normalization
+jseries-schema (cold path)              exact bounds validation
 strict parse, bounds, references                  |
           |                                      v
           +----> immutable SchemaPackage   bounded word assembly
@@ -22,7 +22,7 @@ strict parse, bounds, references                  |
 
 ## Representation boundary
 
-The internal unit is exactly 70 information bits in a `u128`. A `word75` carries those bits plus five preserved parity bits. The implemented `simple80` adapter consumes ten bytes in capture order, preserves the same five parity bits, and requires its five padding bits to be zero. These named representations are not interchangeable byte layouts.
+The sole input unit is an integer containing exactly 70 information bits. Values with any higher bit set are rejected; the decoder does not accept or infer framed, parity-bearing, padded, or byte-packed transport representations.
 
 Assembly requires an initial word followed by continuation or extension words and enforces a 32-word bound. It does not infer undocumented sequence rules.
 

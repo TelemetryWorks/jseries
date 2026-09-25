@@ -41,7 +41,6 @@ pub struct LoadedPackage {
 pub struct VectorCase {
     pub name: String,
     pub message: String,
-    pub input_format: String,
     pub words: Vec<String>,
 }
 
@@ -126,7 +125,6 @@ struct VectorsDoc {
 struct VectorDoc {
     name: String,
     message: String,
-    input_format: String,
     words: Vec<String>,
 }
 
@@ -222,7 +220,6 @@ pub fn load_package(root: impl AsRef<Path>) -> Result<LoadedPackage, LoadError> 
         vectors.extend(doc.cases.into_iter().map(|case| VectorCase {
             name: case.name,
             message: case.message,
-            input_format: case.input_format,
             words: case.words,
         }));
     }

@@ -1,7 +1,7 @@
 use criterion::{Criterion, Throughput, criterion_group, criterion_main};
 use jseries_core::{
     AssembledMessage, DecodeContext, Decoder, FieldSpec, Interpretation, MessageSpec,
-    PackageMetadata, SchemaPackage, normalize_logical70,
+    PackageMetadata, SchemaPackage, normalize_word,
 };
 use std::{hint::black_box, sync::Arc};
 
@@ -51,7 +51,7 @@ fn package() -> Arc<SchemaPackage> {
 
 fn decode_single_word(criterion: &mut Criterion) {
     let decoder = Decoder::new(package()).unwrap();
-    let message = AssembledMessage::new(vec![normalize_logical70(0x2af37c).unwrap()]).unwrap();
+    let message = AssembledMessage::new(vec![normalize_word(0x2af37c).unwrap()]).unwrap();
     let context = DecodeContext {
         source_id: "criterion".into(),
         source_offset: 0,
@@ -72,7 +72,7 @@ fn decode_batch(criterion: &mut Criterion) {
     let decoder = Decoder::new(package()).unwrap();
     let messages = (0..BATCH_SIZE)
         .map(|index| {
-            AssembledMessage::new(vec![normalize_logical70((index as u128) << 2).unwrap()]).unwrap()
+            AssembledMessage::new(vec![normalize_word((index as u128) << 2).unwrap()]).unwrap()
         })
         .collect::<Vec<_>>();
     let mut group = criterion.benchmark_group("decode_batch");

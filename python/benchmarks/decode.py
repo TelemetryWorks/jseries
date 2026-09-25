@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Measure end-to-end Python-to-Rust logical70 decoding throughput."""
+"""Measure end-to-end Python-to-Rust 70-bit word decoding throughput."""
 
 import argparse
 from collections.abc import Callable
