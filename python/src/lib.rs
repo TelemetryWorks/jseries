@@ -8,9 +8,9 @@ use jseries_core::{
 use jseries_schema::load_package;
 use pyo3::{
     create_exception,
-    exceptions::{PyException, PyValueError},
+    exceptions::{PyException, PyTypeError, PyValueError},
     prelude::*,
-    types::PyModule,
+    types::{PyAny, PyList, PyModule},
 };
 use std::{path::PathBuf, sync::Arc};
 
@@ -211,57 +211,61 @@ impl PythonDecoder {
             .collect()
     }
 
-    #[pyo3(signature = (message_id, words, *, source_id=None, source_offset=0))]
-    fn decode_logical70(
+    #[pyo3(signature = (message_id, values, *, source_id=None, source_offset=0))]
+    fn decode(
         &self,
         py: Python<'_>,
         message_id: String,
-        words: Vec<u128>,
+        values: &Bound<'_, PyAny>,
         source_id: Option<String>,
         source_offset: u64,
-    ) -> PyResult<PythonDecodedRecord> {
+    ) -> PyResult<Py<PyAny>> {
         let source_id: Arc<str> = source_id.unwrap_or_else(|| "python".into()).into();
-        py.detach(|| {
-            let message = assemble_logical70(words)?;
-            self.inner
-                .decode(
-                    &message_id,
-                    &message,
-                    &DecodeContext {
-                        source_id,
-                        source_offset,
-                    },
-                )
-                .map(|inner| PythonDecodedRecord { inner })
-                .map_err(|error| DecodeError::new_err(error.to_string()))
-        })
-    }
+        if let Ok(words) = values.extract::<Vec<u128>>() {
+            if words.is_empty() {
+                return Err(PyValueError::new_err("decode input cannot be empty"));
+            }
+            let record = py.detach(|| {
+                let message = assemble_logical70(words)?;
+                self.inner
+                    .decode(
+                        &message_id,
+                        &message,
+                        &DecodeContext {
+                            source_id,
+                            source_offset,
+                        },
+                    )
+                    .map(|inner| PythonDecodedRecord { inner })
+                    .map_err(|error| DecodeError::new_err(error.to_string()))
+            })?;
+            return Ok(Py::new(py, record)?.into_any());
+        }
 
-    #[pyo3(signature = (message_id, rows, *, source_id=None, start_offset=0))]
-    fn decode_many_logical70(
-        &self,
-        py: Python<'_>,
-        message_id: String,
-        rows: Vec<Vec<u128>>,
-        source_id: Option<String>,
-        start_offset: u64,
-    ) -> PyResult<Vec<PythonDecodedRecord>> {
-        let source_id: Arc<str> = source_id.unwrap_or_else(|| "python".into()).into();
-        py.detach(|| {
+        let rows = values.extract::<Vec<Vec<u128>>>().map_err(|_| {
+            PyTypeError::new_err(
+                "decode values must be a non-empty sequence of words or a non-empty sequence of rows",
+            )
+        })?;
+        if rows.is_empty() {
+            return Err(PyValueError::new_err("decode input cannot be empty"));
+        }
+        let records: Vec<PythonDecodedRecord> = py.detach(|| {
             let messages = rows
                 .into_iter()
                 .map(assemble_logical70)
                 .collect::<PyResult<Vec<_>>>()?;
             self.inner
-                .decode_many(&message_id, &messages, source_id, start_offset)
+                .decode_many(&message_id, &messages, source_id, source_offset)
                 .map(|records| {
                     records
                         .into_iter()
                         .map(|inner| PythonDecodedRecord { inner })
-                        .collect()
+                        .collect::<Vec<_>>()
                 })
                 .map_err(|error| DecodeError::new_err(error.to_string()))
-        })
+        })?;
+        Ok(PyList::new(py, records)?.into_any().unbind())
     }
 }
 

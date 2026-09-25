@@ -56,4 +56,4 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 
 ## Priority 6 — product adapters
 
-Extend the persistent Python decoder beyond logical-70 with explicit word75 and simple80 inputs. Measure and add compact columnar batch output, reusable buffers, chunked streaming, and optional parallel execution for very large datasets. Add capture readers, structured serialization, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.
+Keep the Python decoder's public input contract focused on 70-bit information words. Measure and add compact columnar batch output, reusable buffers, chunked streaming, and optional parallel execution for very large datasets. Add capture readers, structured serialization, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.

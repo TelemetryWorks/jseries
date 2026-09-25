@@ -27,7 +27,7 @@ def measure(callable_: Callable[[], Result], iterations: int) -> tuple[float, Re
 def decode_and_consume_fields(
     decoder: jseries.Decoder, rows: list[list[int]]
 ) -> tuple[list[jseries.DecodedRecord], int]:
-    records = decoder.decode_many_logical70("EXAMPLE-70", rows)
+    records = decoder.decode("EXAMPLE-70", rows)
     checksum = sum(field.raw for record in records for field in record.fields)
     return records, checksum
 
@@ -45,7 +45,7 @@ def main() -> int:
     rows = [[0x1C94] for _ in range(arguments.rows)]
 
     elapsed, records = measure(
-        lambda: decoder.decode_many_logical70("EXAMPLE-70", rows),
+        lambda: decoder.decode("EXAMPLE-70", rows),
         arguments.iterations,
     )
     if len(records) != arguments.rows:
@@ -68,7 +68,7 @@ def main() -> int:
 
     if arguments.include_single:
         elapsed, records = measure(
-            lambda: [decoder.decode_logical70("EXAMPLE-70", row) for row in rows],
+            lambda: [decoder.decode("EXAMPLE-70", row) for row in rows],
             arguments.iterations,
         )
         if len(records) != arguments.rows:

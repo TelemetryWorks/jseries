@@ -1,7 +1,7 @@
 """Public type information for the jseries Python package."""
 
 from os import PathLike
-from typing import Sequence
+from typing import Sequence, overload
 
 __version__: str
 
@@ -60,19 +60,21 @@ class DecodedRecord:
 class Decoder:
     def __init__(self, schema_path: str | PathLike[str]) -> None: ...
     def message_ids(self) -> list[str]: ...
-    def decode_logical70(
+    @overload
+    def decode(
         self,
         message_id: str,
-        words: Sequence[int],
+        values: Sequence[int],
         *,
         source_id: str | None = None,
         source_offset: int = 0,
     ) -> DecodedRecord: ...
-    def decode_many_logical70(
+    @overload
+    def decode(
         self,
         message_id: str,
-        rows: Sequence[Sequence[int]],
+        values: Sequence[Sequence[int]],
         *,
         source_id: str | None = None,
-        start_offset: int = 0,
+        source_offset: int = 0,
     ) -> list[DecodedRecord]: ...

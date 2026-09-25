@@ -49,11 +49,11 @@ messages or homogeneous batches:
 import jseries
 
 decoder = jseries.Decoder("schemas")
-record = decoder.decode_logical70("EXAMPLE-70", [0x1C94])
-records = decoder.decode_many_logical70(
+record = decoder.decode("EXAMPLE-70", [0x1C94])
+records = decoder.decode(
     "EXAMPLE-70",
     [[0x1C94], [0x1494], [0x0C94]],
-    start_offset=100,
+    source_offset=100,
 )
 ```
 

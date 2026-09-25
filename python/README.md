@@ -47,7 +47,7 @@ import jseries
 decoder = jseries.Decoder(Path("schemas"))
 print(decoder.message_ids())
 
-record = decoder.decode_logical70(
+record = decoder.decode(
     "EXAMPLE-70",
     [0x1C94],
     source_id="capture-a",
@@ -58,29 +58,34 @@ for field in record.fields:
     print(field.id, field.raw, field.status, field.label)
 ```
 
-The outer sequence passed as `words` contains all words for one message. Values
-must contain only the 70 information bits; framing/parity bits are not silently
-accepted as logical-70 data.
+The sequence passed as the second argument contains all words for one message.
+Values must contain only the 70 information bits; framing/parity bits are not
+silently accepted as logical-70 data.
 
 Errors from package loading and decoding derive from `jseries.JSeriesError`.
 Out-of-range Python values and invalid word assembly raise `ValueError`.
 
 ## Decode many rows
 
-Do not call `decode_logical70` once per row when a homogeneous collection is
-already available. Cross the Python/Rust boundary once:
+Do not call `decode` once per row when a homogeneous collection is already
+available. Pass a sequence of rows and cross the Python/Rust boundary once:
 
 ```python
 rows = [[0x1C94], [0x1494], [0x0C94]]
-records = decoder.decode_many_logical70(
+records = decoder.decode(
     "EXAMPLE-70",
     rows,
     source_id="capture-a",
-    start_offset=1_000,
+    source_offset=1_000,
 )
 ```
 
-The batch API preserves input order and assigns consecutive offsets. It releases
+`decode` distinguishes one record from a batch by input shape: a sequence of
+integers is one message, while a sequence of integer sequences is a batch. Empty
+input is rejected because its shape is ambiguous. For a batch, `source_offset`
+is the first row's offset.
+
+The batch path preserves input order and assigns consecutive offsets. It releases
 the Python interpreter while Rust normalizes and decodes the batch. The current
 API returns rich row-oriented objects; for very wide or multi-million-row data,
 a future compact columnar output will avoid constructing one Python-facing field
