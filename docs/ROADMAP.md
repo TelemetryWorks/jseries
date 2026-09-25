@@ -16,14 +16,15 @@ Sort out `evidence/` before expanding semantic coverage:
 
 Completion means every retained artifact has one owner/source, an explicit freshness rule, and no conflicting current-status document.
 
-## Priority 1 — GitHub Actions baseline
+## Priority 1 — CI/CD and supply-chain expansion
 
-- Make the initial cross-platform CI workflow required for protected branches.
-- Run format, Clippy with warnings denied, requirement trace validation, debug tests, release tests, and a Rust 1.86 MSRV job.
-- Enable Dependabot and dependency review after repository policy is agreed.
-- Add CodeQL once the base workflow is stable; add scheduled fuzzing and benchmark monitoring after harnesses exist.
-- Pin action revisions according to organization policy and document secret/permission minimization.
-- Do not reproduce the reference repository's Sonar workflow unless its service, secrets, and value are explicitly approved.
+- Make the existing cross-platform CI jobs required in the `main` branch protection rules.
+- Establish reviewed coverage thresholds after representative test coverage and a stable baseline exist.
+- Add dependency review for pull requests, Dependabot updates, `cargo audit`, and a `cargo deny` policy covering advisories, licenses, bans, and sources.
+- Add scheduled Criterion regression reporting after representative benchmarks and stable runner methodology exist; compile every benchmark in ordinary CI meanwhile.
+- Add scheduled fuzzing for transport normalization, assembly, and TOML loading with bounded corpora and artifact retention.
+- Add documentation checks, `cargo semver-checks` once a public API is released, and release workflows that produce an SBOM, attestations, signatures, and checksums for release artifacts.
+- Automate reviewed updates for immutable action pins, define retention for every produced artifact, and connect those artifacts to the evidence plan.
 
 ## Priority 2 — package contract completion
 
@@ -55,4 +56,4 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 
 ## Priority 6 — product adapters
 
-Add stable library APIs, capture readers, structured output, Python bindings, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.
+Add stable decode APIs to the initial Python binding, capture readers, structured output, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.

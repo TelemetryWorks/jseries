@@ -10,7 +10,8 @@ This project is not a security certification or standards-conformance implementa
 | Resource exhaustion | Fixed `u128` word representation, 32-word assembly limit, bounded package/model sizes | Bounds for readers, concurrent assemblies, batches, and output queues |
 | Arithmetic/meaning | Exact integer/rational interpretation, explicit special/invalid/not-applicable states | Independently qualified semantic vectors and broader rule model |
 | Sensitive data | No operational captures bundled; core performs no network or file access | Logging/redaction, storage, access, retention, and deletion policy |
-| Supply chain | Locked Cargo dependencies, GitHub workflow with read-only contents permission | Dependency review, CodeQL, SBOM/provenance, action SHA pinning, signing |
+| Python native package | Thin abi3 PyO3 adapter; wheels are built and install-tested on Windows and manylinux; no PyPI publication credentials | Release attestations, signing, trusted PyPI publishing, supported-platform expansion |
+| Supply chain | Locked Cargo dependencies; Taplo and schema checks; CodeQL; coverage-backed SonarCloud analysis with narrowly scoped workflow permissions | Dependency review, SBOM/provenance, action SHA pinning, signing |
 
 Package metadata is not authenticated proof. Do not decide that a package is authoritative from its path, label, or successful parse. Hashes can identify bytes but do not prove correctness or authorization.
 

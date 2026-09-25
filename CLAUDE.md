@@ -61,11 +61,19 @@ download or update toolchains implicitly.
 python tools/check.py                    # complete local gate
 cargo fmt --all                          # format Rust
 cargo test --workspace --locked          # focused Rust verification
+taplo fmt --check                        # check TOML formatting
+taplo check                              # validate TOML syntax and structure
+cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
+python -m maturin develop --manifest-path python/Cargo.toml --locked
+python -m unittest discover --start-directory python/tests --verbose
 ```
 
-`tools/check.py` validates traceability, checks rustfmt, denies Clippy warnings,
-and runs locked debug and release Rust tests. It fails if a required tool is
-absent.
+`tools/check.py` checks TOML with Taplo, validates traceability, checks rustfmt,
+denies Clippy warnings, runs locked debug and release Rust tests, and compiles
+benchmark targets. It fails if a required tool is absent.
+
+GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
+for the workflow boundaries and required repository secrets.
 
 ## Architecture and repository layout
 
@@ -75,16 +83,18 @@ verification fixtures, and engineering documentation:
 - `crates/jseries-core/` — normalization, assembly, schema model, and decode hot path.
 - `crates/jseries-schema/` — strict TOML loading and cold-path resolution.
 - `crates/jseries-cli/` — schema validation, inspection, and decoding CLI.
-- `schemas/` — runnable project-authored TOML starter package and schema guidance.
-- `schemas/` — schema guidance plus public source and coverage metadata; it
-  contains no authoritative message definitions.
+- `python/` — thin PyO3 adapter, Python facade, package tests, and maturin metadata.
+- `schemas/` — runnable project-authored TOML starter package, schema guidance,
+  and public source/coverage metadata; it contains no authoritative message
+  definitions.
 - `docs/` — architecture, contracts, requirements, decisions, and roadmap.
 - `tools/` — repository verification and traceability checks.
 
 TOML/filesystem work belongs outside `jseries-core`. Parsing, reference
 resolution, and lookup-table construction must never move into the decode hot
-path. Prefer clear boundaries and straightforward code over abstractions for
-hypothetical requirements.
+path. Python bindings must expose coarse-grained Rust operations rather than
+crossing the FFI boundary per field. Prefer clear boundaries and straightforward
+code over abstractions for hypothetical requirements.
 
 ## Implementation standards
 

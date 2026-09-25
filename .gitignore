@@ -5,3 +5,9 @@ __pycache__/
 /private-schemas/
 /private-fixtures/
 /evidence/runs/
+/lcov.info
+/.venv/
+/python/dist/
+/python/dist-test/
+/python/.venv/
+/python/jseries/*.pdb

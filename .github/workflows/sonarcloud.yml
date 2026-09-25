@@ -1,0 +1,68 @@
+name: SonarCloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze and enforce quality gate
+    if: >-
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository) &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          components: clippy, llvm-tools-preview
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2
+        with:
+          tool: cargo-llvm-cov@0.8.7
+          fallback: none
+      - name: Verify SonarCloud configuration
+        shell: bash
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+        run: |
+          test -n "$SONAR_TOKEN" || { echo "SONAR_TOKEN is not configured"; exit 1; }
+          test -n "$SONAR_PROJECT_KEY" || { echo "SONAR_PROJECT_KEY is not configured"; exit 1; }
+          test -n "$SONAR_ORGANIZATION" || { echo "SONAR_ORGANIZATION is not configured"; exit 1; }
+      - name: Generate Rust coverage
+        run: cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
+      - name: Upload coverage evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-lcov-${{ github.sha }}
+          path: lcov.info
+          if-no-files-found: error
+          retention-days: 14
+      - name: Run SonarCloud analysis
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >-
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.sources=crates,tools,python
+            -Dsonar.tests=crates,python
+            -Dsonar.exclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**,python/target/**,target/**
+            -Dsonar.test.inclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**
+            -Dsonar.coverage.exclusions=crates/**/tests/**,crates/**/benches/**,tools/**,python/**
+            -Dsonar.rust.lcov.reportPaths=lcov.info
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600

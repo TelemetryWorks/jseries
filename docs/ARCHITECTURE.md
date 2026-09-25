@@ -18,7 +18,7 @@ strict parse, bounds, references                  |
                                              DecodedRecord
 ```
 
-`jseries-core` has no filesystem, network, CLI, Serde, or TOML dependency. `jseries-schema` performs bounded reads, rejects unknown keys and unsafe relative paths, resolves catalogs, sorts code tables, and constructs the validated owned model. The CLI is an adapter, not part of decoding semantics.
+`jseries-core` has no filesystem, network, CLI, Python, Serde, or TOML dependency. `jseries-schema` performs bounded reads, rejects unknown keys and unsafe relative paths, resolves catalogs, sorts code tables, and constructs the validated owned model. The CLI and PyO3 extension are adapters, not part of decoding semantics. Python calls must remain coarse-grained and future long-running work must release the interpreter so the binding does not compromise the Rust hot path.
 
 ## Representation boundary
 

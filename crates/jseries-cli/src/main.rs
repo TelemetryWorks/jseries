@@ -1,13 +1,14 @@
 #![forbid(unsafe_code)]
 use jseries_core::{
-    AssembledMessage, DecodeContext, Decoder, FieldStatus, normalize_logical70, normalize_simple80,
-    normalize_word75,
+    AssembledMessage, DecodeContext, Decoder, FieldStatus, PACKAGE_VERSION, normalize_logical70,
+    normalize_simple80, normalize_word75,
 };
 use jseries_schema::{load_package, parse_raw};
 use std::{env, process::ExitCode};
 
 const HELP: &str = "jseries — schema-driven 70-bit information-word decoder\n\
 Usage:\n\
+  jseries --version\n\
   jseries schema validate <package-directory>\n\
   jseries schema inspect <package-directory>\n\
   jseries decode --schema DIR --message ID --input-format logical70|word75|simple80 --word VALUE [--word VALUE ...]\n\
@@ -31,6 +32,10 @@ fn run(args: Vec<String>) -> Result<(), String> {
         }
         [help] if help == "--help" || help == "-h" || help == "help" => {
             println!("{HELP}");
+            Ok(())
+        }
+        [version] if version == "--version" || version == "-V" => {
+            println!("jseries {PACKAGE_VERSION}");
             Ok(())
         }
         [schema, action, directory]
