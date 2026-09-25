@@ -34,4 +34,6 @@ cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.inf
 ```
 
 CI pins Taplo CLI 0.10.0 and cargo-llvm-cov 0.8.7. Local installations should
-use the same versions when reproducing a workflow result.
+use the same versions when reproducing a workflow result. Third-party actions
+are pinned to immutable commit SHAs with their human-readable version or branch
+recorded in comments.

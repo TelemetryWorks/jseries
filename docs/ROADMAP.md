@@ -24,7 +24,7 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 - Add scheduled Criterion regression reporting after representative benchmarks and stable runner methodology exist; compile every benchmark in ordinary CI meanwhile.
 - Add scheduled fuzzing for transport normalization, assembly, and TOML loading with bounded corpora and artifact retention.
 - Add documentation checks, `cargo semver-checks` once a public API is released, and release workflows that produce an SBOM, attestations, signatures, and checksums for release artifacts.
-- Pin third-party actions to immutable commit SHAs under organization policy, minimize workflow permissions, define retention, and connect every produced artifact to the evidence plan.
+- Automate reviewed updates for immutable action pins, define retention for every produced artifact, and connect those artifacts to the evidence plan.
 
 ## Priority 2 — package contract completion
 
