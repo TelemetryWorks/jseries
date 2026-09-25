@@ -56,4 +56,4 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 
 ## Priority 6 — product adapters
 
-Add stable library APIs, capture readers, structured output, Python bindings, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.
+Add stable decode APIs to the initial Python binding, capture readers, structured output, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.

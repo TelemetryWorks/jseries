@@ -1,0 +1,24 @@
+[package]
+name = "jseries-python"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+license-file = "../LICENSE"
+publish.workspace = true
+
+[lib]
+name = "_jseries"
+crate-type = ["cdylib"]
+
+[features]
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+jseries-core = { path = "../crates/jseries-core" }
+pyo3.workspace = true
+
+[lints]
+workspace = true

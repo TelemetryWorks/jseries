@@ -16,6 +16,7 @@ def main() -> int:
         ["taplo", "check"],
         [sys.executable, "tools/check_toml.py"],
         [sys.executable, "tools/check_traceability.py"],
+        [sys.executable, "tools/check_python.py"],
         ["cargo", "run", "--locked", "-p", "jseries-cli", "--", "schema", "validate", "schemas"],
         ["cargo", "fmt", "--all", "--", "--check"],
         ["cargo", "clippy", "--workspace", "--all-targets", "--all-features", "--", "-D", "warnings"],

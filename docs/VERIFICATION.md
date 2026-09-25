@@ -26,6 +26,15 @@ accepted as passing evidence until they run successfully on GitHub.
 The LCOV command also completed locally with cargo-llvm-cov 0.6.21; CI pins
 0.8.7, whose hosted result remains pending.
 
+The Python workflow builds and install-tests CPython stable-ABI wheels on
+Windows x86-64 and manylinux x86-64 and tests locally built packages with
+Python 3.10 and 3.14. Those hosted results remain pending until the workflow
+runs for the binding changes.
+
+A local Windows CPython 3.12 test built and installed
+`jseries-0.1.0-cp310-abi3-win_amd64.whl`; the installed native module reported
+`0.1.0`, matching its distribution metadata and the Cargo workspace version.
+
 Acceptance layers include core correctness, bounded package safety, exact run evidence, GitHub-hosted platform results, measured performance, and fact-level semantic qualification. Encoder/decoder round trips and agreement with another decoder are useful comparison evidence but can share defects and do not establish standards conformance.
 
 The evidence directory is being redesigned according to Priority 0 in the roadmap. Until that work lands, current truth comes from a fresh local command or an exact GitHub Actions run, not a checked-in historical “current status” file.

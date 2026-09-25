@@ -42,7 +42,7 @@ jobs:
           test -n "$SONAR_PROJECT_KEY" || { echo "SONAR_PROJECT_KEY is not configured"; exit 1; }
           test -n "$SONAR_ORGANIZATION" || { echo "SONAR_ORGANIZATION is not configured"; exit 1; }
       - name: Generate Rust coverage
-        run: cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info
+        run: cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
       - name: Upload coverage evidence
         uses: actions/upload-artifact@v4
         with:
@@ -58,11 +58,11 @@ jobs:
           args: >-
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.sources=crates,tools
-            -Dsonar.tests=crates
-            -Dsonar.exclusions=crates/**/tests/**,crates/**/benches/**,target/**
-            -Dsonar.test.inclusions=crates/**/tests/**,crates/**/benches/**
-            -Dsonar.coverage.exclusions=crates/**/tests/**,crates/**/benches/**
+            -Dsonar.sources=crates,tools,python
+            -Dsonar.tests=crates,python
+            -Dsonar.exclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**,python/target/**,target/**
+            -Dsonar.test.inclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**
+            -Dsonar.coverage.exclusions=crates/**/tests/**,crates/**/benches/**,tools/**,python/**
             -Dsonar.rust.lcov.reportPaths=lcov.info
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=600

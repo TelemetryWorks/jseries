@@ -1,0 +1,97 @@
+name: Python
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.10", "3.14"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - name: Install Python build tools
+        run: python -m pip install --disable-pip-version-check --requirement python/requirements-dev.txt
+      - name: Build the Rust-backed package
+        run: python -m maturin build --manifest-path python/Cargo.toml --locked --out python/dist-test
+      - name: Install the built package
+        run: python -m pip install --disable-pip-version-check --no-index --find-links python/dist-test jseries
+      - name: Check Python syntax
+        run: python tools/check_python.py
+      - name: Test the installed package
+        run: python -m unittest discover --start-directory python/tests --verbose
+
+  wheel-linux:
+    name: Build Linux x86-64 wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Build manylinux wheel
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          command: build
+          target: x86_64
+          manylinux: "2_28"
+          maturin-version: v1.14.1
+          args: --release --locked --out dist
+          working-directory: python
+      - name: Install and test the wheel
+        run: |
+          python -m pip install --disable-pip-version-check --no-index --find-links python/dist jseries
+          python -m unittest discover --start-directory python/tests --verbose
+      - name: Upload Linux wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: jseries-wheel-linux-x86_64
+          path: python/dist/*.whl
+          if-no-files-found: error
+          retention-days: 14
+
+  wheel-windows:
+    name: Build Windows x86-64 wheel
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          architecture: x64
+      - name: Build Windows wheel
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          command: build
+          target: x64
+          maturin-version: v1.14.1
+          args: --release --locked --out dist
+          working-directory: python
+      - name: Install and test the wheel
+        run: |
+          python -m pip install --disable-pip-version-check --no-index --find-links python/dist jseries
+          python -m unittest discover --start-directory python/tests --verbose
+      - name: Upload Windows wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: jseries-wheel-windows-x86_64
+          path: python/dist/*.whl
+          if-no-files-found: error
+          retention-days: 14

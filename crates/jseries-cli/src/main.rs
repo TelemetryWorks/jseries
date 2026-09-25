@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 use jseries_core::{
-    AssembledMessage, DecodeContext, Decoder, FieldStatus, normalize_logical70, normalize_simple80,
-    normalize_word75,
+    AssembledMessage, DecodeContext, Decoder, FieldStatus, PACKAGE_VERSION, normalize_logical70,
+    normalize_simple80, normalize_word75,
 };
 use jseries_schema::{load_package, parse_raw};
 use std::{env, process::ExitCode};
@@ -13,7 +13,6 @@ Usage:\n\
   jseries schema inspect <package-directory>\n\
   jseries decode --schema DIR --message ID --input-format logical70|word75|simple80 --word VALUE [--word VALUE ...]\n\
 logical70 and word75 values are decimal or lowercase 0x hex. simple80 is exactly 20 hex digits in capture byte order.";
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -36,7 +35,7 @@ fn run(args: Vec<String>) -> Result<(), String> {
             Ok(())
         }
         [version] if version == "--version" || version == "-V" => {
-            println!("jseries {VERSION}");
+            println!("jseries {PACKAGE_VERSION}");
             Ok(())
         }
         [schema, action, directory]

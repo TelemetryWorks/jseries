@@ -1,6 +1,6 @@
 # Continuous integration
 
-GitHub Actions provides three complementary workflows:
+GitHub Actions provides four complementary workflows:
 
 - `CI` runs Taplo, the repository TOML and schema checks, rustfmt, Clippy,
   traceability, debug and release tests, benchmark compilation, cross-platform
@@ -10,6 +10,9 @@ GitHub Actions provides three complementary workflows:
 - `SonarCloud` generates LCOV coverage with `cargo-llvm-cov`, uploads the
   report as a 14-day workflow artifact, analyzes the repository, and waits for
   the SonarCloud quality gate.
+- `Python` builds and installs the PyO3 package on Python 3.10 and 3.14 on
+  Windows and Linux, then builds, installs, tests, and retains release abi3
+  wheels for 64-bit Windows and manylinux x86-64.
 
 The SonarCloud workflow requires these repository secrets:
 
@@ -30,10 +33,15 @@ Run the added checks locally with:
 ```text
 taplo fmt --check
 taplo check
-cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info
+cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
 ```
 
 CI pins Taplo CLI 0.10.0 and cargo-llvm-cov 0.8.7. Local installations should
 use the same versions when reproducing a workflow result. Third-party actions
 are pinned to immutable commit SHAs with their human-readable version or branch
 recorded in comments.
+
+Rust LCOV generation excludes `jseries-python`: enabling PyO3's extension-module
+link mode inside a Rust test harness is not a representative Python test. The
+Python workflow instead installs and imports the real native wheels on both
+supported operating-system families.

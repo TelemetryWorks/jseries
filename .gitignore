@@ -6,3 +6,8 @@ __pycache__/
 /private-fixtures/
 /evidence/runs/
 /lcov.info
+/.venv/
+/python/dist/
+/python/dist-test/
+/python/.venv/
+/python/jseries/*.pdb

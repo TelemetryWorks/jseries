@@ -15,6 +15,7 @@ Public catalog metadata can identify a revision but does not supply the normativ
 - `jseries-core`: transport normalization, assembly, validated schema model, and decode hot path; no TOML or filesystem dependency.
 - `jseries-schema`: bounded, strict TOML package loading and cold-path reference resolution.
 - `jseries-cli`: package validation, inspection, and explicit decoding commands.
+- `python/`: installable PyO3 extension and Python package backed by `jseries-core`.
 - `schemas/`: runnable project-authored starter package showing how users provide message layouts and catalogs.
 
 Schema TOML is parsed once. The decoder holds immutable validated definitions, a single message index, precomputed bit ranges, resolved conditional selectors, and sorted code tables. File I/O, TOML parsing, and catalog-name resolution do not occur in the decode hot path.
@@ -30,6 +31,21 @@ cargo run --locked -p jseries-cli -- decode --schema schemas --message EXAMPLE-7
 
 The example is invented test data, not a real Link 16 message. See [schemas/README.md](schemas/README.md) for the package layout and [docs/SCHEMA-CONTRACT.md](docs/SCHEMA-CONTRACT.md) for the contract.
 
+## Python package
+
+CI produces installable 64-bit Windows and manylinux wheels for CPython 3.10
+and newer. After downloading the appropriate wheel artifact from GitHub
+Actions:
+
+```text
+python -m pip install path/to/the-downloaded-jseries-wheel.whl
+python -c "import jseries; print(jseries.__version__)"
+```
+
+The package is not yet published to PyPI. See
+[python/README.md](python/README.md) for virtual-environment instructions,
+source builds, supported platforms, versioning, and contributor guidance.
+
 ## Development
 
 Rust edition 2024 is used with a minimum supported Rust version of 1.86. The current workspace was compiled and tested locally with Rust 1.98.0 on Windows. Run:
@@ -42,11 +58,14 @@ cargo test --workspace --locked --release
 cargo bench --workspace --no-run --locked
 taplo fmt --check
 taplo check
-cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info
+cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
 python tools/check.py
 ```
 
 GitHub Actions checks Taplo and Rust formatting, Clippy, traceability, debug and release tests, Windows/Linux behavior, the declared MSRV, CodeQL findings, LCOV coverage, and the SonarCloud quality gate. See [docs/CI.md](docs/CI.md) for workflow and secret configuration.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting Rust, Python, schema,
+or workflow changes.
 
 ## License
 

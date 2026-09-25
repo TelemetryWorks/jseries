@@ -4,6 +4,9 @@
 //! explicit source and qualification metadata.
 #![forbid(unsafe_code)]
 
+/// Package version inherited from the workspace's central Cargo manifest.
+pub const PACKAGE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 pub mod assembly;
 pub mod decode;
 pub mod schema;
