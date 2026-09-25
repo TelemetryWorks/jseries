@@ -7,7 +7,7 @@ use std::{collections::HashMap, fmt, sync::Arc};
 
 #[derive(Clone, Debug)]
 pub struct DecodeContext {
-    pub source_id: String,
+    pub source_id: Arc<str>,
     pub source_offset: u64,
 }
 
@@ -55,7 +55,7 @@ pub struct DecodedRecord {
     pub qualification: Arc<str>,
     pub source: Arc<str>,
     pub decoder_version: &'static str,
-    pub source_id: String,
+    pub source_id: Arc<str>,
     pub source_offset: u64,
     pub message_id: Arc<str>,
     pub fields: Vec<DecodedField>,
@@ -158,17 +158,66 @@ impl Decoder {
         message: &AssembledMessage,
         context: &DecodeContext,
     ) -> Result<DecodedRecord, DecodeError> {
-        if context.source_id.trim().is_empty() || context.source_id.len() > 4096 {
-            return Err(DecodeError::InvalidContext(
-                "source identifier must contain 1..=4096 bytes",
-            ));
+        validate_context(context)?;
+        let compiled = self.compiled_message(message_id)?;
+        let spec = &self.package.messages[compiled.spec_index];
+        self.decode_compiled(spec, compiled, message, context)
+    }
+
+    /// Decode a homogeneous batch while resolving the immutable message plan once.
+    ///
+    /// Offsets are assigned consecutively beginning at `start_offset`. The returned
+    /// records preserve input order.
+    pub fn decode_many(
+        &self,
+        message_id: &str,
+        messages: &[AssembledMessage],
+        source_id: Arc<str>,
+        start_offset: u64,
+    ) -> Result<Vec<DecodedRecord>, DecodeError> {
+        let context = DecodeContext {
+            source_id: Arc::clone(&source_id),
+            source_offset: start_offset,
+        };
+        validate_context(&context)?;
+        let compiled = self.compiled_message(message_id)?;
+        let spec = &self.package.messages[compiled.spec_index];
+        let mut records = Vec::with_capacity(messages.len());
+        for (index, message) in messages.iter().enumerate() {
+            let index = u64::try_from(index)
+                .map_err(|_| DecodeError::InvalidContext("source offset overflow"))?;
+            let source_offset = start_offset
+                .checked_add(index)
+                .ok_or(DecodeError::InvalidContext("source offset overflow"))?;
+            records.push(self.decode_compiled(
+                spec,
+                compiled,
+                message,
+                &DecodeContext {
+                    source_id: Arc::clone(&source_id),
+                    source_offset,
+                },
+            )?);
         }
-        let compiled = self
-            .message_index
+        Ok(records)
+    }
+
+    #[inline]
+    fn compiled_message(&self, message_id: &str) -> Result<&CompiledMessage, DecodeError> {
+        self.message_index
             .get(message_id)
             .and_then(|index| self.messages.get(*index))
-            .ok_or_else(|| DecodeError::UnsupportedMessage(message_id.into()))?;
-        let spec = &self.package.messages[compiled.spec_index];
+            .ok_or_else(|| DecodeError::UnsupportedMessage(message_id.into()))
+    }
+
+    #[inline]
+    fn decode_compiled(
+        &self,
+        spec: &crate::schema::MessageSpec,
+        compiled: &CompiledMessage,
+        message: &AssembledMessage,
+        context: &DecodeContext,
+    ) -> Result<DecodedRecord, DecodeError> {
         if message.words().len() != usize::from(spec.word_count) {
             return Err(DecodeError::WordCountMismatch {
                 expected: spec.word_count,
@@ -177,11 +226,7 @@ impl Decoder {
         }
         let mut raw = Vec::with_capacity(spec.fields.len());
         for (field, range) in spec.fields.iter().zip(&compiled.ranges) {
-            raw.push(
-                message.words()[usize::from(field.word)]
-                    .information
-                    .extract(*range),
-            );
+            raw.push(message.words()[usize::from(field.word)].extract(*range));
         }
         let mut statuses = vec![None; raw.len()];
         for &index in &compiled.order {
@@ -232,12 +277,21 @@ impl Decoder {
             qualification: Arc::clone(&metadata.qualification),
             source: Arc::clone(&metadata.source),
             decoder_version: env!("CARGO_PKG_VERSION"),
-            source_id: context.source_id.clone(),
+            source_id: Arc::clone(&context.source_id),
             source_offset: context.source_offset,
             message_id: Arc::clone(&spec.id),
             fields,
         })
     }
+}
+
+fn validate_context(context: &DecodeContext) -> Result<(), DecodeError> {
+    if context.source_id.trim().is_empty() || context.source_id.len() > 4096 {
+        return Err(DecodeError::InvalidContext(
+            "source identifier must contain 1..=4096 bytes",
+        ));
+    }
+    Ok(())
 }
 
 #[inline]

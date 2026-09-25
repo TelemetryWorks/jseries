@@ -53,6 +53,12 @@ impl InformationWord {
     }
 }
 
+/// Validate and construct the project's sole supported 70-bit word representation.
+#[inline]
+pub fn normalize_word(value: u128) -> Result<InformationWord, WordError> {
+    InformationWord::new(value)
+}
+
 impl BitRange {
     pub fn new(lsb: u8, width: u8) -> Result<Self, WordError> {
         if width == 0 || u16::from(lsb) + u16::from(width) > u16::from(INFORMATION_BITS) {

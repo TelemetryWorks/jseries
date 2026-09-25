@@ -1,6 +1,6 @@
 # Continuous integration
 
-GitHub Actions provides four complementary workflows:
+GitHub Actions provides five complementary workflows:
 
 - `CI` runs Taplo, the repository TOML and schema checks, rustfmt, Clippy,
   traceability, debug and release tests, benchmark compilation, cross-platform
@@ -13,6 +13,10 @@ GitHub Actions provides four complementary workflows:
 - `Python` builds and installs the PyO3 package on Python 3.10 and 3.14 on
   Windows and Linux, then builds, installs, tests, and retains release abi3
   wheels for 64-bit Windows and manylinux x86-64.
+- `Performance` runs when performance-sensitive files change and on manual
+  dispatch. It retains Criterion reports plus Rust and installed-wheel Python
+  benchmark output for 30 days. Results are evidence, not a pass/fail threshold
+  on variable shared runners.
 
 The SonarCloud workflow requires these repository secrets:
 

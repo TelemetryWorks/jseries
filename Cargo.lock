@@ -381,6 +381,7 @@ name = "jseries-python"
 version = "0.1.0"
 dependencies = [
  "jseries-core",
+ "jseries-schema",
  "pyo3",
 ]
 

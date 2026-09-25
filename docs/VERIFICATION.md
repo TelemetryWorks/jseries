@@ -2,7 +2,7 @@
 
 ## Current local result
 
-On 2026-09-24 the expanded local gate passed on Windows with `rustc 1.98.0` and `cargo 1.98.0`: TOML and runtime-schema validation, requirement traceability, rustfmt, Clippy with warnings denied, all eleven Rust tests in debug and release profiles, and compilation of every benchmark target. Direct compiler configuration checks also reported `panic="unwind"` for development and `panic="abort"` for release. This is local development evidence; the new branch still needs GitHub-hosted MSRV and cross-platform results.
+On 2026-09-24 the expanded local gate passed on Windows with `rustc 1.98.0` and `cargo 1.98.0`: TOML and runtime-schema validation, requirement traceability, rustfmt, Clippy with warnings denied, all Rust tests in debug and release profiles, and compilation of every benchmark target. Direct compiler configuration checks also reported `panic="unwind"` for development and `panic="abort"` for release.
 
 Run the complete local gate with:
 
@@ -21,10 +21,9 @@ execution option; offline mode cannot install prerequisites.
 GitHub Actions additionally runs Taplo formatting and validation, CodeQL Rust
 analysis, and SonarCloud analysis backed by an LCOV report from
 `cargo-llvm-cov`. See [CI.md](CI.md) for the workflow boundaries, required
-secrets, and matching local commands. These newly supplied workflows are not
-accepted as passing evidence until they run successfully on GitHub.
-The LCOV command also completed locally with cargo-llvm-cov 0.6.21; CI pins
-0.8.7, whose hosted result remains pending.
+secrets, and matching local commands. PR #2 passed the hosted Windows/Linux,
+MSRV, CodeQL, LCOV, and SonarCloud quality-gate checks before merge. CI pins
+cargo-llvm-cov 0.8.7; a local coverage run also passed with 0.6.21.
 
 The Python workflow builds and install-tests CPython stable-ABI wheels on
 Windows x86-64 and manylinux x86-64 and tests locally built packages with
@@ -34,6 +33,15 @@ passed all six jobs on commit `c08bdf7` and retained both wheel artifacts.
 A local Windows CPython 3.12 test built and installed
 `jseries-0.1.0-cp310-abi3-win_amd64.whl`; the installed native module reported
 `0.1.0`, matching its distribution metadata and the Cargo workspace version.
+
+On 2026-09-24, the release-mode Rust benchmark decoded a synthetic 1,024-row,
+single-word, two-field batch at a median 2.29 million messages/second on the
+local Windows development machine. The installed-wheel benchmark decoded
+10,000 rows using the four-field repository example at a median 676 thousand
+messages/second in one batch, versus 437 thousand messages/second using
+individual Python calls. These are initial local baselines, not portable
+performance guarantees; the schemas differ and the Python measurement includes
+input conversion and result-object construction.
 
 Acceptance layers include core correctness, bounded package safety, exact run evidence, GitHub-hosted platform results, measured performance, and fact-level semantic qualification. Encoder/decoder round trips and agreement with another decoder are useful comparison evidence but can share defects and do not establish standards conformance.
 
