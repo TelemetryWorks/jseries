@@ -12,11 +12,16 @@ def run(command: list[str]) -> int:
 
 def main() -> int:
     commands = [
+        ["taplo", "fmt", "--check"],
+        ["taplo", "check"],
+        [sys.executable, "tools/check_toml.py"],
         [sys.executable, "tools/check_traceability.py"],
+        ["cargo", "run", "--locked", "-p", "jseries-cli", "--", "schema", "validate", "schemas"],
         ["cargo", "fmt", "--all", "--", "--check"],
         ["cargo", "clippy", "--workspace", "--all-targets", "--all-features", "--", "-D", "warnings"],
         ["cargo", "test", "--workspace", "--locked"],
         ["cargo", "test", "--workspace", "--locked", "--release"],
+        ["cargo", "bench", "--workspace", "--no-run", "--locked"],
     ]
     for command in commands:
         try:

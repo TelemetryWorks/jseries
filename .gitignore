@@ -5,3 +5,4 @@ __pycache__/
 /private-schemas/
 /private-fixtures/
 /evidence/runs/
+/lcov.info

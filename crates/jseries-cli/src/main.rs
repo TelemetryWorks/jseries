@@ -8,10 +8,12 @@ use std::{env, process::ExitCode};
 
 const HELP: &str = "jseries — schema-driven 70-bit information-word decoder\n\
 Usage:\n\
+  jseries --version\n\
   jseries schema validate <package-directory>\n\
   jseries schema inspect <package-directory>\n\
   jseries decode --schema DIR --message ID --input-format logical70|word75|simple80 --word VALUE [--word VALUE ...]\n\
 logical70 and word75 values are decimal or lowercase 0x hex. simple80 is exactly 20 hex digits in capture byte order.";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -31,6 +33,10 @@ fn run(args: Vec<String>) -> Result<(), String> {
         }
         [help] if help == "--help" || help == "-h" || help == "help" => {
             println!("{HELP}");
+            Ok(())
+        }
+        [version] if version == "--version" || version == "-V" => {
+            println!("jseries {VERSION}");
             Ok(())
         }
         [schema, action, directory]

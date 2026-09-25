@@ -61,11 +61,17 @@ download or update toolchains implicitly.
 python tools/check.py                    # complete local gate
 cargo fmt --all                          # format Rust
 cargo test --workspace --locked          # focused Rust verification
+taplo fmt --check                        # check TOML formatting
+taplo check                              # validate TOML syntax and structure
+cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info
 ```
 
-`tools/check.py` validates traceability, checks rustfmt, denies Clippy warnings,
-and runs locked debug and release Rust tests. It fails if a required tool is
-absent.
+`tools/check.py` checks TOML with Taplo, validates traceability, checks rustfmt,
+denies Clippy warnings, runs locked debug and release Rust tests, and compiles
+benchmark targets. It fails if a required tool is absent.
+
+GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
+for the workflow boundaries and required repository secrets.
 
 ## Architecture and repository layout
 

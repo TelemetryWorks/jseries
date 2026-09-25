@@ -20,11 +20,23 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: taplo@0.10.0
+          fallback: none
+      - name: Check TOML formatting
+        run: taplo fmt --check
+      - name: Lint TOML
+        run: taplo check
+      - name: Parse all TOML documents
+        run: python tools/check_toml.py
+      - run: cargo run --locked -p jseries-cli -- schema validate schemas
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - run: python tools/check_traceability.py
       - run: cargo test --workspace --locked
       - run: cargo test --workspace --locked --release
+      - run: cargo bench --workspace --no-run --locked
 
   test:
     strategy:

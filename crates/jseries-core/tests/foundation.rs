@@ -1,4 +1,6 @@
 use jseries_core::*;
+use proptest::prelude::*;
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use std::sync::Arc;
 
 fn package() -> Arc<SchemaPackage> {
@@ -115,4 +117,26 @@ fn schema_rejects_overlap_and_missing_selectors() {
         fields: fields.into(),
     };
     assert!(jseries_core::schema::validate_message(&message).is_err());
+}
+
+proptest! {
+    #[test]
+    fn logical_and_word75_normalization_agree(value in 0_u128..(1_u128 << 70), parity in 0_u8..32) {
+        let logical = normalize_logical70(value).unwrap();
+        let framed = normalize_word75((u128::from(parity) << 70) | value).unwrap();
+        prop_assert_eq!(logical.information, framed.information);
+        prop_assert_eq!(framed.parity, Some(parity));
+    }
+}
+
+#[test]
+fn seeded_random_words_preserve_all_information_bits() {
+    let mut random = StdRng::seed_from_u64(0x4a534552494553);
+    for _ in 0..1_000 {
+        let value = random.random_range(0_u128..(1_u128 << 70));
+        assert_eq!(
+            normalize_logical70(value).unwrap().information.value(),
+            value
+        );
+    }
 }

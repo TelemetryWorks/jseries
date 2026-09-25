@@ -6,6 +6,9 @@ resolver = "3"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.86"
+authors = ["TelemetryWorks"]
+repository = "https://github.com/TelemetryWorks/jseries"
+homepage = "https://github.com/TelemetryWorks/jseries"
 license = "Apache-2.0"
 publish = false
 
@@ -15,8 +18,19 @@ unsafe_code = "forbid"
 [workspace.dependencies]
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 toml = "1.1.6"
+criterion = "0.8.2"
+proptest = "1.11.0"
+rand = "0.9.5"
+# 1.0.121 requires Rust 1.88; keep the workspace's Rust 1.86 MSRV.
+trybuild = "=1.0.119"
+
+[profile.dev]
+panic = "unwind"
 
 [profile.release]
+debug = false
 overflow-checks = true
-lto = "thin"
+lto = true
+opt-level = 3
 codegen-units = 1
+panic = "abort"

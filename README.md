@@ -22,6 +22,7 @@ Schema TOML is parsed once. The decoder holds immutable validated definitions, a
 ## Try it
 
 ```text
+cargo run --locked -p jseries-cli -- --version
 cargo run --locked -p jseries-cli -- schema validate schemas
 cargo run --locked -p jseries-cli -- schema inspect schemas
 cargo run --locked -p jseries-cli -- decode --schema schemas --message EXAMPLE-70 --input-format logical70 --word 0x1c94
@@ -38,10 +39,14 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --locked
 cargo test --workspace --locked --release
+cargo bench --workspace --no-run --locked
+taplo fmt --check
+taplo check
+cargo llvm-cov --workspace --all-features --locked --lcov --output-path lcov.info
 python tools/check.py
 ```
 
-GitHub Actions is the intended CI system. The initial workflow checks formatting, Clippy, traceability, debug and release tests, Windows/Linux behavior, and the declared MSRV.
+GitHub Actions checks Taplo and Rust formatting, Clippy, traceability, debug and release tests, Windows/Linux behavior, the declared MSRV, CodeQL findings, LCOV coverage, and the SonarCloud quality gate. See [docs/CI.md](docs/CI.md) for workflow and secret configuration.
 
 ## License
 
