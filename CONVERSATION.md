@@ -584,10 +584,9 @@ After extracting the archive, use a locally provisioned Rust toolchain, native l
 ```
 cd link16-revision-starter
 
-python tools/bundle_manifest.py --check
 python tools/check.py --rust
 
-cargo run --locked --offline -p l16-cli -- baselines
+cargo run --locked --offline -p jseries-cli -- baselines
 ```
 
 Use python3 on Linux or py -3 on Windows where that is your local Python invocation.
@@ -601,9 +600,9 @@ Demonstrating revision isolation
 The supplied toy fixture uses a 16-bit logical integer—not a Link 16 word format:
 
 ```
-cargo run --locked --offline -p l16-cli -- demo --baseline D --word 0x0765 --evidence "manual synthetic test"
+cargo run --locked --offline -p jseries-cli -- demo --baseline D --word 0x0765 --evidence "manual synthetic test"
 
-cargo run --locked --offline -p l16-cli -- demo --baseline H --word 0x0765 --evidence "manual synthetic test"
+cargo run --locked --offline -p jseries-cli -- demo --baseline H --word 0x0765 --evidence "manual synthetic test"
 ```
 The independently specified fixture expectations are:
 
@@ -618,7 +617,7 @@ A separate fixture exists only in the synthetic H bundle. Tests specify that att
 
 The following command is written to refuse standards decoding because no qualified schema is installed:
 ```
-cargo run --locked --offline -p l16-cli -- decode --baseline H
+cargo run --locked --offline -p jseries-cli -- decode --baseline H
 ```
 6. What comes next
 
@@ -1491,4 +1490,3 @@ So I would make the official GitHub description:
 Toolkit for decoding, encoding, validating, and analyzing J-series tactical data messages across MIL-STD-6016 revisions.
 
 That's language-neutral and leaves plenty of room for where we're taking the project.
-

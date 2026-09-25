@@ -1,15 +1,7 @@
-# ADR-0008: Use provisioned offline runners and report actual test evidence
+# ADR-0008: GitHub Actions and reproducible local checks
 
-Status: Proposed; reflected in increment 0.1
+Status: Accepted
 
-## Context
+Use GitHub Actions for hosted CI and `tools/check.py` as the matching local gate. Required checks cover formatting, Clippy, requirement traceability, locked debug/release tests, Windows/Linux execution, and Rust 1.86 MSRV. The workspace uses Rust edition 2024 and third-party crates are locked in `Cargo.lock`.
 
-The user needs disconnected Linux and Windows operation. Rust is absent in the authoring environment, so compilation cannot be claimed.
-
-## Decision
-
-Use a dependency-free Rust workspace and standard-library Python tooling. Supply Linux/Windows GitLab shell-runner jobs that require local toolchains and execute locked/offline tests. Record missing execution as a gap.
-
-## Consequences
-
-The organization must provision and pin a compiler/linker. Python success does not prove Rust compiles, and generic source code does not prove RHEL or Windows support.
+Offline execution is supported after dependencies and the toolchain are provisioned; offline flags are not an installer. Generated workflow evidence is retained as run artifacts under the evidence plan rather than copied forward as a timeless passing status.
