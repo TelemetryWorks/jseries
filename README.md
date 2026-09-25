@@ -42,6 +42,21 @@ python -m pip install path/to/the-downloaded-jseries-wheel.whl
 python -c "import jseries; print(jseries.__version__)"
 ```
 
+Load a schema package once and reuse its immutable decode plan for individual
+messages or homogeneous batches:
+
+```python
+import jseries
+
+decoder = jseries.Decoder("schemas")
+record = decoder.decode_logical70("EXAMPLE-70", [0x1C94])
+records = decoder.decode_many_logical70(
+    "EXAMPLE-70",
+    [[0x1C94], [0x1494], [0x0C94]],
+    start_offset=100,
+)
+```
+
 The package is not yet published to PyPI. See
 [python/README.md](python/README.md) for virtual-environment instructions,
 source builds, supported platforms, versioning, and contributor guidance.
@@ -56,6 +71,7 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --locked
 cargo test --workspace --locked --release
 cargo bench --workspace --no-run --locked
+cargo bench -p jseries-core --bench decode --locked
 taplo fmt --check
 taplo check
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info

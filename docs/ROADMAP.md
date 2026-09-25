@@ -56,4 +56,4 @@ Completion means every retained artifact has one owner/source, an explicit fresh
 
 ## Priority 6 — product adapters
 
-Add stable decode APIs to the initial Python binding, capture readers, structured output, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.
+Extend the persistent Python decoder beyond logical-70 with explicit word75 and simple80 inputs. Measure and add compact columnar batch output, reusable buffers, chunked streaming, and optional parallel execution for very large datasets. Add capture readers, structured serialization, fuzzing, deterministic replay, and observability as independently testable adapters. Stateful track reconstruction remains downstream from received decoded events.

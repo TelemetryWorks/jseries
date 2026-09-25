@@ -1,0 +1,61 @@
+name: Performance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/performance.yml"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "crates/jseries-core/**"
+      - "python/**"
+  workflow_dispatch:
+    inputs:
+      rows:
+        description: Rows in the Python boundary benchmark
+        required: true
+        type: number
+        default: 10000
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    name: Rust and Python baselines
+    runs-on: ubuntu-latest
+    env:
+      BENCHMARK_ROWS: ${{ inputs.rows || 10000 }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+      - name: Run Rust benchmarks
+        run: cargo bench -p jseries-core --bench decode --locked -- --noplot | tee rust-benchmark.txt
+      - name: Build release wheel
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          command: build
+          target: x86_64
+          manylinux: "2_28"
+          maturin-version: v1.14.1
+          args: --release --locked --out dist
+          working-directory: python
+      - name: Install wheel
+        run: python tools/install_python_wheel.py python/dist
+      - name: Run Python boundary benchmark
+        run: python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
+      - name: Upload benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: jseries-performance-${{ github.sha }}
+          path: |
+            python-benchmark.txt
+            rust-benchmark.txt
+            target/criterion
+          if-no-files-found: error
+          retention-days: 30

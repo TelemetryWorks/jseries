@@ -66,6 +66,7 @@ taplo check                              # validate TOML syntax and structure
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
 python -m maturin develop --manifest-path python/Cargo.toml --locked
 python -m unittest discover --start-directory python/tests --verbose
+python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
 `tools/check.py` checks TOML with Taplo, validates traceability, checks rustfmt,
@@ -93,8 +94,10 @@ verification fixtures, and engineering documentation:
 TOML/filesystem work belongs outside `jseries-core`. Parsing, reference
 resolution, and lookup-table construction must never move into the decode hot
 path. Python bindings must expose coarse-grained Rust operations rather than
-crossing the FFI boundary per field. Prefer clear boundaries and straightforward
-code over abstractions for hypothetical requirements.
+crossing the FFI boundary per field. Batch APIs resolve a homogeneous message
+plan once and release the Python interpreter during native work. Prefer clear
+boundaries and straightforward code over abstractions for hypothetical
+requirements.
 
 ## Implementation standards
 

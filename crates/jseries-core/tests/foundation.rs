@@ -108,6 +108,25 @@ fn decoder_extracts_prevalidated_fields() {
 }
 
 #[test]
+fn batch_decode_preserves_order_and_assigns_offsets() {
+    let decoder = Decoder::new(package()).unwrap();
+    let messages = [0b000100_u128, 0b001000, 0b001100]
+        .into_iter()
+        .map(|value| AssembledMessage::new(vec![normalize_logical70(value).unwrap()]).unwrap())
+        .collect::<Vec<_>>();
+    let records = decoder
+        .decode_many("M", &messages, "batch".into(), 40)
+        .unwrap();
+
+    assert_eq!(records.len(), 3);
+    assert_eq!(records[0].source_offset, 40);
+    assert_eq!(records[2].source_offset, 42);
+    assert_eq!(records[0].fields[1].raw, 1);
+    assert_eq!(records[1].fields[1].raw, 2);
+    assert_eq!(records[2].fields[1].raw, 3);
+}
+
+#[test]
 fn schema_rejects_overlap_and_missing_selectors() {
     let mut fields = package().messages[0].fields.to_vec();
     fields[1].lsb = 1;
