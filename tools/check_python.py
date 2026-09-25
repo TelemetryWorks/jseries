@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main() -> int:
     paths = sorted((ROOT / "python").glob("**/*.py"))
+    paths.extend(sorted((ROOT / "tools").glob("*.py")))
     for path in paths:
         source = path.read_text(encoding="utf-8")
         compile(source, str(path), "exec")
