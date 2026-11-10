@@ -99,8 +99,14 @@ verification fixtures, and engineering documentation:
 TOML/filesystem work belongs outside `jseries-core`. Parsing, reference
 resolution, and lookup-table construction must never move into the decode hot
 path. Python bindings must expose coarse-grained Rust operations rather than
-crossing the FFI boundary per field. Batch APIs resolve a homogeneous message
-plan once and release the Python interpreter during native work. Prefer clear
+crossing the FFI boundary per field. Python input shapes must not fall back to a
+different interpretation after a numeric range failure: invalid word integers
+raise ValueError; invalid shapes and bytes-like containers raise TypeError.
+Batch row errors use zero-based indices, preserve the cause/class, and return
+no partial records; shared source/message failures stay global. Rust BatchRow
+Display identifies only the row, and Error::source exposes the original cause.
+See `docs/MIGRATION.md` for unreleased compatibility changes. Batch APIs resolve
+a homogeneous message plan once and release the Python interpreter during native work. Prefer clear
 boundaries and straightforward code over abstractions for hypothetical
 requirements.
 

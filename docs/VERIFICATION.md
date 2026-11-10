@@ -34,14 +34,14 @@ A local Windows CPython 3.12 test built and installed
 `jseries-0.1.0-cp310-abi3-win_amd64.whl`; the installed native module reported
 `0.1.0`, matching its distribution metadata and the Cargo workspace version.
 
-On 2026-09-24, the release-mode Rust benchmark decoded a synthetic 1,024-row,
-single-word, two-field batch at a median 2.29 million messages/second on the
-local Windows development machine. The installed-wheel benchmark decoded
-10,000 rows using the four-field repository example at a median 676 thousand
-messages/second in one batch, versus 437 thousand messages/second using
-individual Python calls. These are initial local baselines, not portable
-performance guarantees; the schemas differ and the Python measurement includes
-input conversion and result-object construction.
+Performance is measured separately at the Rust engine boundary and at the
+installed Python wheel boundary, including a case that accesses every field.
+Earlier local throughput figures are omitted because this repository does not
+retain their measured commit, hardware details, and raw samples together. They
+are not accepted as reproducible baselines. Use exact `Performance` workflow runs and
+retained artifacts, with the metadata required by [PERFORMANCE.md](PERFORMANCE.md),
+when assessing throughput or comparing revisions. Shared-runner results are
+qualified measurements, not portable guarantees.
 
 Acceptance layers include core correctness, bounded package safety, exact run evidence, GitHub-hosted platform results, measured performance, and fact-level semantic qualification. Encoder/decoder round trips and agreement with another decoder are useful comparison evidence but can share defects and do not establish standards conformance.
 

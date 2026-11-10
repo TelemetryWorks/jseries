@@ -12,8 +12,9 @@ cargo bench -p jseries-core --bench decode --locked
 
 The installed-wheel benchmark separately measures the return path and the path
 that accesses every decoded field. Together they expose Python integer
-conversion, native calls, decoding, record wrapping, and lazy field-object
-materialization:
+conversion, native calls, decoding, record wrapping, and field-object
+materialization on property access. Every `record.fields` access creates a fresh
+list and fresh field wrappers; it is not cached:
 
 ```text
 uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single

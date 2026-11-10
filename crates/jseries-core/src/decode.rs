@@ -65,15 +65,24 @@ pub struct DecodedRecord {
 pub enum DecodeError {
     Schema(SchemaError),
     UnsupportedMessage(String),
-    WordCountMismatch { expected: u8, actual: usize },
+    WordCountMismatch {
+        expected: u8,
+        actual: usize,
+    },
     InvalidContext(&'static str),
     InternalInvariant(&'static str),
+    /// A zero-based row failure; Display gives the row and Error::source gives its cause.
+    BatchRow {
+        index: usize,
+        error: Box<DecodeError>,
+    },
 }
 
 impl fmt::Display for DecodeError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Schema(error) => write!(f, "schema: {error}"),
+            Self::BatchRow { index, .. } => write!(f, "batch row {index}"),
             Self::UnsupportedMessage(id) => {
                 write!(f, "message {id:?} is not in the selected package")
             }
@@ -87,7 +96,14 @@ impl fmt::Display for DecodeError {
         }
     }
 }
-impl std::error::Error for DecodeError {}
+impl std::error::Error for DecodeError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::BatchRow { error, .. } => Some(error.as_ref()),
+            _ => None,
+        }
+    }
+}
 impl From<SchemaError> for DecodeError {
     fn from(error: SchemaError) -> Self {
         Self::Schema(error)
@@ -167,7 +183,10 @@ impl Decoder {
     /// Decode a homogeneous batch while resolving the immutable message plan once.
     ///
     /// Offsets are assigned consecutively beginning at `start_offset`. The returned
-    /// records preserve input order.
+    /// records preserve input order. The operation is all-or-nothing: a failure
+    /// returns no partial records. Row-specific failures use `BatchRow` with a
+    /// zero-based index and the original error as their source; shared-context
+    /// and message-lookup failures remain unwrapped.
     pub fn decode_many(
         &self,
         message_id: &str,
@@ -184,20 +203,28 @@ impl Decoder {
         let spec = &self.package.messages[compiled.spec_index];
         let mut records = Vec::with_capacity(messages.len());
         for (index, message) in messages.iter().enumerate() {
-            let index = u64::try_from(index)
-                .map_err(|_| DecodeError::InvalidContext("source offset overflow"))?;
+            // Boxing occurs only on failure; the success path keeps one plan lookup.
+            let row_error = |error| DecodeError::BatchRow {
+                index,
+                error: Box::new(error),
+            };
+            let ordinal = u64::try_from(index)
+                .map_err(|_| row_error(DecodeError::InvalidContext("source offset overflow")))?;
             let source_offset = start_offset
-                .checked_add(index)
-                .ok_or(DecodeError::InvalidContext("source offset overflow"))?;
-            records.push(self.decode_compiled(
-                spec,
-                compiled,
-                message,
-                &DecodeContext {
-                    source_id: Arc::clone(&source_id),
-                    source_offset,
-                },
-            )?);
+                .checked_add(ordinal)
+                .ok_or_else(|| row_error(DecodeError::InvalidContext("source offset overflow")))?;
+            records.push(
+                self.decode_compiled(
+                    spec,
+                    compiled,
+                    message,
+                    &DecodeContext {
+                        source_id: Arc::clone(&source_id),
+                        source_offset,
+                    },
+                )
+                .map_err(row_error)?,
+            );
         }
         Ok(records)
     }

@@ -63,7 +63,14 @@ Values must contain only the 70 information bits; any higher bits are rejected.
 Transport framing and packed byte representations are not accepted.
 
 Errors from package loading and decoding derive from `jseries.JSeriesError`.
-Out-of-range Python values and invalid word assembly raise `ValueError`.
+Word integers outside `0..2^70 - 1` raise `ValueError`, including negative
+integers and values at or above `2^128`. Invalid word assembly also raises
+`ValueError`. Noninteger/mixed input shapes and `bytes`, `bytearray`, or
+`memoryview` containers raise `TypeError`; raw transport bytes are not decoded.
+
+`record.fields` creates a fresh list and fresh field wrappers on every access.
+Store it locally when reading the same collection repeatedly; the property does
+not cache the materialized fields.
 
 ## Decode many rows
 
@@ -84,6 +91,12 @@ records = decoder.decode(
 integers is one message, while a sequence of integer sequences is a batch. Empty
 input is rejected because its shape is ambiguous. For a batch, `source_offset`
 is the first row's offset.
+
+Batch calls are all-or-nothing: a failure returns no partial list. Row-specific
+input, assembly, decoding, and offset-overflow errors include the zero-based row
+and reason while retaining their exception class. Invalid shared source IDs and
+unknown message IDs remain global errors. Diagnostic field statuses in a returned
+record are distinct from exceptions and do not by themselves abort a batch.
 
 The batch path preserves input order and assigns consecutive offsets. It releases
 the Python interpreter while Rust normalizes and decodes the batch. The current
