@@ -59,19 +59,24 @@ download or update toolchains implicitly.
 
 ```text
 python tools/check.py                    # complete local gate
+uv sync --directory python --locked --only-group dev
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
 cargo fmt --all                          # format Rust
 cargo test --workspace --locked          # focused Rust verification
 taplo fmt --check                        # check TOML formatting
 taplo check                              # validate TOML syntax and structure
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
-python -m maturin develop --manifest-path python/Cargo.toml --locked
-python -m unittest discover --start-directory python/tests --verbose
-python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest
+uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
-`tools/check.py` checks TOML with Taplo, validates traceability, checks rustfmt,
-denies Clippy warnings, runs locked debug and release Rust tests, and compiles
-benchmark targets. It fails if a required tool is absent.
+`tools/check.py` checks TOML with Taplo, runs Ruff formatting and linting,
+Pylint, strict mypy, native-stub verification, pytest with Python branch
+coverage, validates traceability, checks rustfmt, denies Clippy warnings, runs
+locked debug and release Rust tests, and compiles benchmark targets. Run the
+uv sync and maturin develop commands above first. The gate checks lock freshness
+offline and requires an existing `python/.venv`. It never installs or updates
+dependencies and fails if a required tool is absent.
 
 GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
 for the workflow boundaries and required repository secrets.
@@ -81,7 +86,7 @@ for the workflow boundaries and required repository secrets.
 The current proposal separates the decoder core, CLI, synthetic schemas,
 verification fixtures, and engineering documentation:
 
-- `crates/jseries-core/` — normalization, assembly, schema model, and decode hot path.
+- `crates/jseries-core/` — 70-bit word validation, assembly, schema model, and decode hot path.
 - `crates/jseries-schema/` — strict TOML loading and cold-path resolution.
 - `crates/jseries-cli/` — schema validation, inspection, and decoding CLI.
 - `python/` — thin PyO3 adapter, Python facade, package tests, and maturin metadata.
