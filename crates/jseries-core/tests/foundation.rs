@@ -209,7 +209,7 @@ fn batch_decode_keeps_global_errors_unwrapped() {
     let decoder = Decoder::new(package()).unwrap();
     let valid = AssembledMessage::new(vec![normalize_word(0).unwrap()]).unwrap();
     let error = decoder
-        .decode_many("UNKNOWN", &[valid.clone()], "batch".into(), 0)
+        .decode_many("UNKNOWN", std::slice::from_ref(&valid), "batch".into(), 0)
         .unwrap_err();
     assert_eq!(error, DecodeError::UnsupportedMessage("UNKNOWN".into()));
     assert!(std::error::Error::source(&error).is_none());
