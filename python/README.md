@@ -128,15 +128,10 @@ stubs with the compiled PyO3 module. Pytest-cov measures Python branch coverage;
 Rust coverage remains the responsibility of `cargo-llvm-cov`.
 
 Verification commands use `python -m` to invoke each tool through the selected
-interpreter, with uv synchronization and Python downloads disabled. The Coordinator inspected the failing Windows pytest and Pylint ZIP launchers:
-their embedded interpreter paths referenced an absent previous checkout, while
-the current checkout's interpreter existed. This was a relocated, nonportable
-virtual environment; it is not evidence of a general uv Windows defect. Recreate
-virtual environments from the lockfile after moving a checkout. Module invocation
-avoids those stale console launchers but does not make an environment portable.
-Clean Linux 3.10 and 3.14 environments passed both pytest invocation forms. The
-Windows/Linux matrix records interpreter, launcher path, exit status, and output
-separately; module-based tests remain mandatory on every platform.
+interpreter, with uv synchronization and Python downloads disabled. Virtual
+environments are not portable: recreate them from the lockfile after moving a
+checkout. Module invocation avoids stale console launchers but does not make
+an environment portable.
 
 To exercise the same physical-wheel path as CI instead, run:
 
