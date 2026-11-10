@@ -2,9 +2,7 @@
 
 from collections.abc import Sequence
 from os import PathLike
-from typing import final, overload
-
-from typing_extensions import Self
+from typing import NoReturn, final, overload
 
 __version__: str
 __all__ = [
@@ -23,6 +21,7 @@ class DecodeError(JSeriesError): ...
 
 @final
 class DecodedField:
+    def __new__(cls) -> NoReturn: ...
     @property
     def id(self) -> str: ...
     @property
@@ -56,6 +55,7 @@ class DecodedField:
 
 @final
 class DecodedRecord:
+    def __new__(cls) -> NoReturn: ...
     @property
     def package_id(self) -> str: ...
     @property
@@ -73,7 +73,7 @@ class DecodedRecord:
 
 @final
 class Decoder:
-    def __new__(cls, schema_path: str | PathLike[str]) -> Self: ...
+    def __new__(cls, schema_path: str | PathLike[str]) -> Decoder: ...
     def message_ids(self) -> list[str]: ...
     @overload
     def decode(

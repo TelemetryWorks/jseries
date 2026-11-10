@@ -20,3 +20,6 @@ __pycache__/
 /python/.ruff_cache/
 /python/.venv/
 /python/jseries/*.pdb
+
+/python/jseries/*.so
+/python/jseries/*.pyd

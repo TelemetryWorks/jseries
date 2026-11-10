@@ -60,3 +60,36 @@ def test_rejects_ambiguous_empty_input(decoder: jseries.Decoder) -> None:
     """Reject an empty value sequence because its intended shape is ambiguous."""
     with pytest.raises(ValueError, match="cannot be empty"):
         decoder.decode("EXAMPLE-70", [])
+
+
+def test_schema_and_decode_errors_keep_public_hierarchy(tmp_path: Path) -> None:
+    """Expose Rust failures through the documented Python exception classes."""
+    assert issubclass(jseries.SchemaError, jseries.JSeriesError)
+    assert issubclass(jseries.DecodeError, jseries.JSeriesError)
+    with pytest.raises(jseries.SchemaError):
+        jseries.Decoder(tmp_path)
+    decoder = jseries.Decoder(ROOT / "schemas")
+    with pytest.raises(jseries.DecodeError, match="not in the selected package"):
+        decoder.decode("UNKNOWN", [0x1C94])
+    with pytest.raises(jseries.DecodeError, match="source identifier"):
+        decoder.decode("EXAMPLE-70", [0x1C94], source_id=" ")
+
+
+def test_batch_rejects_offset_overflow(decoder: jseries.Decoder) -> None:
+    """Consecutive batch offsets must not wrap or return a partial result."""
+    with pytest.raises(jseries.DecodeError, match="source offset overflow"):
+        decoder.decode("EXAMPLE-70", [[0x1C94], [0x1C94]], source_offset=(1 << 64) - 1)
+
+
+@pytest.mark.parametrize("attribute", ["raw", "status"])
+def test_field_properties_are_read_only(decoder: jseries.Decoder, attribute: str) -> None:
+    """Typed native properties preserve exact values and cannot be mutated."""
+    field = decoder.decode("EXAMPLE-70", (0x1C94,)).fields[2]
+    assert field.status == "rational"
+    assert field.unsigned_value is None
+    assert field.signed_value is None
+    assert field.label is None
+    assert field.selector is None
+    assert field.error is None
+    with pytest.raises(AttributeError):
+        setattr(field, attribute, 0)

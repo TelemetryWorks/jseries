@@ -8,6 +8,10 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+env:
+  CARGO_BUILD_JOBS: "2"
+  UV_PYTHON_DOWNLOADS: never
+
 permissions:
   contents: read
 
@@ -52,12 +56,12 @@ jobs:
       - name: Generate Rust coverage
         run: cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
       - name: Install locked Python development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - name: Build the editable Rust-backed package
-        run: uv run --directory python --locked --no-sync maturin develop --uv --locked
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
       - name: Generate Python coverage
         run: >-
-          uv run --directory python --locked --no-sync pytest
+          uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest
           --cov=jseries --cov-branch --cov-report=term-missing
           --cov-report=xml:coverage.xml
       - name: Upload coverage evidence

@@ -107,18 +107,18 @@ build, lint, type-check, and test groups and compile the native extension:
 
 ```text
 uv sync --directory python --locked --only-group dev
-uv run --directory python --locked --no-sync maturin develop --uv --locked
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
 ```
 
 Run the complete Python gate with:
 
 ```text
-uv run --directory python --locked --no-sync ruff format --check . ../tools
-uv run --directory python --locked --no-sync ruff check . ../tools
-uv run --directory python --locked --no-sync pylint jseries tests benchmarks ../tools
-uv run --directory python --locked --no-sync mypy
-uv run --directory python --locked --no-sync pytest --cov=jseries --cov-branch --cov-report=term-missing
-uv run --directory python --locked --no-sync python -m mypy.stubtest jseries
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff format --check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pylint jseries tests benchmarks ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest --cov=jseries --cov-branch --cov-report=term-missing
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy.stubtest jseries
 ```
 
 Ruff is the formatter and fast linter. Pylint is an additional independent
@@ -127,13 +127,31 @@ repository utilities in strict mode; `mypy.stubtest` compares the checked-in
 stubs with the compiled PyO3 module. Pytest-cov measures Python branch coverage;
 Rust coverage remains the responsibility of `cargo-llvm-cov`.
 
+Verification commands use `python -m` to invoke each tool through the selected
+interpreter, with uv synchronization and Python downloads disabled. The Coordinator inspected the failing Windows pytest and Pylint ZIP launchers:
+their embedded interpreter paths referenced an absent previous checkout, while
+the current checkout's interpreter existed. This was a relocated, nonportable
+virtual environment; it is not evidence of a general uv Windows defect. Recreate
+virtual environments from the lockfile after moving a checkout. Module invocation
+avoids those stale console launchers but does not make an environment portable.
+Clean Linux 3.10 and 3.14 environments passed both pytest invocation forms. The
+Windows/Linux matrix records interpreter, launcher path, exit status, and output
+separately; module-based tests remain mandatory on every platform.
+
 To exercise the same physical-wheel path as CI instead, run:
 
 ```text
-uv run --directory python --locked --no-sync maturin build --release --locked --out dist
-uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
-uv run --project python --locked --no-sync pytest python/tests
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin build --release --locked --out dist
+uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist
+uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
 ```
+
+The wheel installer forcibly replaces any existing same-version or editable
+installation. It probes imports in an isolated Python process outside the
+checkout, requires the package and native module to come from the target
+virtual environment, checks distribution/native version agreement, and compares
+installed package/native bytes with the selected wheel. Wheel tests use `-I`
+to exclude the checkout from Python's initial import path.
 
 ## Version source
 
@@ -163,7 +181,7 @@ batch-oriented APIs so Python does not compromise the Rust hot path.
 Run the Python boundary benchmark against an installed release wheel:
 
 ```text
-uv run --project python --locked --no-sync python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
+uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
 The output distinguishes batch return time, batch decoding plus access to every

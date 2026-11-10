@@ -17,6 +17,10 @@ on:
         type: number
         default: 10000
 
+env:
+  CARGO_BUILD_JOBS: "2"
+  UV_PYTHON_DOWNLOADS: never
+
 permissions:
   contents: read
 
@@ -37,7 +41,7 @@ jobs:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
       - name: Install locked Python development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           toolchain: stable
@@ -49,13 +53,13 @@ jobs:
           command: build
           target: x86_64
           manylinux: "2_28"
-          maturin-version: v1.14.1
+          maturin-version: v1.15.0
           args: --release --locked --out dist
           working-directory: python
       - name: Install wheel
-        run: uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist
       - name: Run Python boundary benchmark
-        run: uv run --project python --locked --no-sync python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
       - name: Upload benchmark evidence
         uses: actions/upload-artifact@v4
         with:

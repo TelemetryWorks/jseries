@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
   workflow_dispatch:
+
+env:
+  CARGO_BUILD_JOBS: "2"
+  UV_PYTHON_DOWNLOADS: never
 
 permissions:
   contents: read
@@ -28,24 +31,24 @@ jobs:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
       - name: Install locked development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - name: Build the editable Rust-backed package
-        run: uv run --directory python --locked --no-sync maturin develop --uv --locked
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
       - name: Check Python formatting
-        run: uv run --directory python --locked --no-sync ruff format --check . ../tools
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff format --check . ../tools
       - name: Run Ruff
-        run: uv run --directory python --locked --no-sync ruff check . ../tools
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff check . ../tools
       - name: Run mypy
-        run: uv run --directory python --locked --no-sync mypy
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy
       - name: Run Pylint
-        run: uv run --directory python --locked --no-sync pylint jseries tests benchmarks ../tools
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pylint jseries tests benchmarks ../tools
       - name: Test with Python coverage
         run: >-
-          uv run --directory python --locked --no-sync pytest
+          uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest
           --cov=jseries --cov-branch --cov-report=term-missing
           --cov-report=xml:coverage.xml
       - name: Verify native extension stubs
-        run: uv run --directory python --locked --no-sync python -m mypy.stubtest jseries
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy.stubtest jseries
       - name: Upload Python coverage evidence
         uses: actions/upload-artifact@v4
         with:
@@ -76,15 +79,21 @@ jobs:
         with:
           toolchain: stable
       - name: Install locked development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - name: Build the Rust-backed package
-        run: uv run --directory python --locked --no-sync maturin build --locked --out dist-test
+        run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin build --locked --out dist-test
       - name: Install the built package
-        run: uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist-test
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist-test
+      - name: Verify installed native stubs
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m mypy.stubtest jseries
       - name: Check Python syntax
-        run: uv run --project python --locked --no-sync python tools/check_python.py
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python tools/check_python.py
+      - name: Diagnose pytest console launcher
+        run: >-
+          uv run --project python --locked --no-sync --offline --no-python-downloads python -c
+          "import shutil, subprocess, sys; print('interpreter:', sys.executable); launcher = shutil.which('pytest'); print('launcher:', launcher); result = subprocess.run([launcher, '--version'], check=False, capture_output=True, text=True) if launcher else None; print('launcher result:', result)"
       - name: Test the installed package
-        run: uv run --project python --locked --no-sync pytest python/tests
+        run: uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
 
   wheel-linux:
     name: Build Linux x86-64 wheel
@@ -100,20 +109,21 @@ jobs:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
       - name: Install locked development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - name: Build manylinux wheel
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: build
           target: x86_64
           manylinux: "2_28"
-          maturin-version: v1.14.1
+          maturin-version: v1.15.0
           args: --release --locked --out dist
           working-directory: python
       - name: Install and test the wheel
         run: |
-          uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
-          uv run --project python --locked --no-sync pytest python/tests
+          uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist
+          uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
+          uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m mypy.stubtest jseries
       - name: Upload Linux wheel
         uses: actions/upload-artifact@v4
         with:
@@ -137,19 +147,20 @@ jobs:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
       - name: Install locked development tools
-        run: uv sync --directory python --locked --only-group dev
+        run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
       - name: Build Windows wheel
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           command: build
           target: x64
-          maturin-version: v1.14.1
+          maturin-version: v1.15.0
           args: --release --locked --out dist
           working-directory: python
       - name: Install and test the wheel
         run: |
-          uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
-          uv run --project python --locked --no-sync pytest python/tests
+          uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist
+          uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
+          uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m mypy.stubtest jseries
       - name: Upload Windows wheel
         uses: actions/upload-artifact@v4
         with:

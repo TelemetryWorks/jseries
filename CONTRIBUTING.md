@@ -13,7 +13,7 @@ Activate `.venv`, then run:
 ```text
 python -m pip install uv==0.12.19
 uv sync --directory python --locked --only-group dev
-uv run --directory python --locked --no-sync maturin develop --uv --locked
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
 ```
 
 Run the complete repository gate before submitting a change:
@@ -29,13 +29,13 @@ into that environment and run focused Python checks with:
 
 ```text
 uv sync --directory python --locked --only-group dev
-uv run --directory python --locked --no-sync maturin develop --uv --locked
-uv run --directory python --locked --no-sync ruff format --check . ../tools
-uv run --directory python --locked --no-sync ruff check . ../tools
-uv run --directory python --locked --no-sync pylint jseries tests benchmarks ../tools
-uv run --directory python --locked --no-sync mypy
-uv run --directory python --locked --no-sync pytest --cov=jseries --cov-branch
-uv run --directory python --locked --no-sync python -m mypy.stubtest jseries
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff format --check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pylint jseries tests benchmarks ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest --cov=jseries --cov-branch
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy.stubtest jseries
 ```
 
 The binding is an adapter. Put decoding behavior and performance-sensitive work
