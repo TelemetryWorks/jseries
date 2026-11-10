@@ -9,4 +9,4 @@ jseries schema validate schemas
 jseries schema inspect schemas
 ```
 
-Its vectors demonstrate both a normalized `logical70` value and the corresponding ten-byte `simple80` capture-order representation. Rust integration tests load the package and independently assert a decoded enumeration.
+Its vector demonstrates the supported 70-bit information-word representation. Rust integration tests load the package and independently assert a decoded enumeration.

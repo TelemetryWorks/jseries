@@ -7,9 +7,9 @@ divergent instructions for individual assistants.
 ## Project overview
 
 `jseries` is a schema-driven J-series decoding foundation with a Rust core.
-It accepts explicit 70-, 75-, and SIMPLE 80-bit representations and runtime
-TOML packages. It contains no MIL-STD-6016 message definitions and is not a
-standards-conformance implementation.
+Its sole supported input representation is an integer containing exactly the
+70 information bits. It accepts runtime TOML packages, contains no MIL-STD-6016
+message definitions, and is not a standards-conformance implementation.
 
 TelemetryWorks cannot lawfully obtain the controlled MIL-STD-6016 revisions
 through an authorized channel. The project is permanently bounded to lawfully
@@ -59,18 +59,24 @@ download or update toolchains implicitly.
 
 ```text
 python tools/check.py                    # complete local gate
+uv sync --directory python --locked --only-group dev
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
 cargo fmt --all                          # format Rust
 cargo test --workspace --locked          # focused Rust verification
 taplo fmt --check                        # check TOML formatting
 taplo check                              # validate TOML syntax and structure
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
-python -m maturin develop --manifest-path python/Cargo.toml --locked
-python -m unittest discover --start-directory python/tests --verbose
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest
+uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
-`tools/check.py` checks TOML with Taplo, validates traceability, checks rustfmt,
-denies Clippy warnings, runs locked debug and release Rust tests, and compiles
-benchmark targets. It fails if a required tool is absent.
+`tools/check.py` checks TOML with Taplo, runs Ruff formatting and linting,
+Pylint, strict mypy, native-stub verification, pytest with Python branch
+coverage, validates traceability, checks rustfmt, denies Clippy warnings, runs
+locked debug and release Rust tests, and compiles benchmark targets. Run the
+uv sync and maturin develop commands above first. The gate checks lock freshness
+offline and requires an existing `python/.venv`. It never installs or updates
+dependencies and fails if a required tool is absent.
 
 GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
 for the workflow boundaries and required repository secrets.
@@ -80,7 +86,7 @@ for the workflow boundaries and required repository secrets.
 The current proposal separates the decoder core, CLI, synthetic schemas,
 verification fixtures, and engineering documentation:
 
-- `crates/jseries-core/` — normalization, assembly, schema model, and decode hot path.
+- `crates/jseries-core/` — 70-bit word validation, assembly, schema model, and decode hot path.
 - `crates/jseries-schema/` — strict TOML loading and cold-path resolution.
 - `crates/jseries-cli/` — schema validation, inspection, and decoding CLI.
 - `python/` — thin PyO3 adapter, Python facade, package tests, and maturin metadata.
@@ -93,8 +99,16 @@ verification fixtures, and engineering documentation:
 TOML/filesystem work belongs outside `jseries-core`. Parsing, reference
 resolution, and lookup-table construction must never move into the decode hot
 path. Python bindings must expose coarse-grained Rust operations rather than
-crossing the FFI boundary per field. Prefer clear boundaries and straightforward
-code over abstractions for hypothetical requirements.
+crossing the FFI boundary per field. Python input shapes must not fall back to a
+different interpretation after a numeric range failure: invalid word integers
+raise ValueError; invalid shapes and bytes-like containers raise TypeError.
+Batch row errors use zero-based indices, preserve the cause/class, and return
+no partial records; shared source/message failures stay global. Rust BatchRow
+Display identifies only the row, and Error::source exposes the original cause.
+See `docs/MIGRATION.md` for unreleased compatibility changes. Batch APIs resolve
+a homogeneous message plan once and release the Python interpreter during native work. Prefer clear
+boundaries and straightforward code over abstractions for hypothetical
+requirements.
 
 ## Implementation standards
 

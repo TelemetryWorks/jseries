@@ -1,9 +1,8 @@
 # jseries for Python
 
 The `jseries` Python package is a native extension backed by the repository's
-Rust libraries. The initial API exposes package version information; decoding
-APIs will be added without moving parsing or other cold-path work into the Rust
-decode hot path.
+Rust libraries. It exposes package version information, persistent schema-backed
+decoders, typed decoded records, and single-message or batch 70-bit decoding.
 
 ## Requirements
 
@@ -36,26 +35,131 @@ The package has not been published to PyPI. A plain `pip install jseries`
 should not be treated as installing this project until a release workflow and
 trusted PyPI publishing are established.
 
-## Install from a checkout
+## Decode 70-bit messages
 
-An editable developer installation compiles the Rust extension into the active
-virtual environment:
+Construct `Decoder` once. It loads and validates the TOML package and compiles
+the immutable Rust decode plans; reuse it for every message using that package:
 
-```text
-python -m pip install --requirement python/requirements-dev.txt
-python -m maturin develop --manifest-path python/Cargo.toml --locked
-python -m unittest discover --start-directory python/tests --verbose
+```python
+from pathlib import Path
+import jseries
+
+decoder = jseries.Decoder(Path("schemas"))
+print(decoder.message_ids())
+
+record = decoder.decode(
+    "EXAMPLE-70",
+    [0x1C94],
+    source_id="capture-a",
+    source_offset=42,
+)
+print(record.message_id, record.source_offset)
+for field in record.fields:
+    print(field.id, field.raw, field.status, field.label)
 ```
 
-Run these commands from the repository root after activating the virtual
-environment. `maturin develop` installs into that active environment and
-requires a Rust toolchain and a supported Python interpreter. To exercise the
-same physical-wheel path as CI instead, run:
+The sequence passed as the second argument contains all words for one message.
+Values must contain only the 70 information bits; any higher bits are rejected.
+Transport framing and packed byte representations are not accepted.
+
+Errors from package loading and decoding derive from `jseries.JSeriesError`.
+Word integers outside `0..2^70 - 1` raise `ValueError`, including negative
+integers and values at or above `2^128`. Invalid word assembly also raises
+`ValueError`. Noninteger/mixed input shapes and `bytes`, `bytearray`, or
+`memoryview` containers raise `TypeError`; raw transport bytes are not decoded.
+
+`record.fields` creates a fresh list and fresh field wrappers on every access.
+Store it locally when reading the same collection repeatedly; the property does
+not cache the materialized fields.
+
+## Decode many rows
+
+Do not call `decode` once per row when a homogeneous collection is already
+available. Pass a sequence of rows and cross the Python/Rust boundary once:
+
+```python
+rows = [[0x1C94], [0x1494], [0x0C94]]
+records = decoder.decode(
+    "EXAMPLE-70",
+    rows,
+    source_id="capture-a",
+    source_offset=1_000,
+)
+```
+
+`decode` distinguishes one record from a batch by input shape: a sequence of
+integers is one message, while a sequence of integer sequences is a batch. Empty
+input is rejected because its shape is ambiguous. For a batch, `source_offset`
+is the first row's offset.
+
+Batch calls are all-or-nothing: a failure returns no partial list. Row-specific
+input, assembly, decoding, and offset-overflow errors include the zero-based row
+and reason while retaining their exception class. Invalid shared source IDs and
+unknown message IDs remain global errors. Diagnostic field statuses in a returned
+record are distinct from exceptions and do not by themselves abort a batch.
+
+The batch path preserves input order and assigns consecutive offsets. It releases
+the Python interpreter while Rust normalizes and decodes the batch. The current
+API returns rich row-oriented objects; for very wide or multi-million-row data,
+a future compact columnar output will avoid constructing one Python-facing field
+object per accessed row and field.
+
+## Contributor environment
+
+Maturin remains the package build backend and Cargo remains the version source.
+uv manages only the reproducible contributor environment. From the repository
+root, create a bootstrap environment, activate it, and install the pinned uv:
 
 ```text
-python -m maturin build --manifest-path python/Cargo.toml --release --locked --out python/dist
-python -m pip install --no-index --find-links python/dist --force-reinstall jseries
+python -m venv .venv
+python -m pip install uv==0.12.19
 ```
+
+uv creates `python/.venv` from the cross-platform lockfile. Install the locked
+build, lint, type-check, and test groups and compile the native extension:
+
+```text
+uv sync --directory python --locked --only-group dev
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin develop --uv --locked
+```
+
+Run the complete Python gate with:
+
+```text
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff format --check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m ruff check . ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pylint jseries tests benchmarks ../tools
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m pytest --cov=jseries --cov-branch --cov-report=term-missing
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy.stubtest jseries
+```
+
+Ruff is the formatter and fast linter. Pylint is an additional independent
+semantic and style gate. Mypy checks the public package, tests, benchmarks, and
+repository utilities in strict mode; `mypy.stubtest` compares the checked-in
+stubs with the compiled PyO3 module. Pytest-cov measures Python branch coverage;
+Rust coverage remains the responsibility of `cargo-llvm-cov`.
+
+Verification commands use `python -m` to invoke each tool through the selected
+interpreter, with uv synchronization and Python downloads disabled. Virtual
+environments are not portable: recreate them from the lockfile after moving a
+checkout. Module invocation avoids stale console launchers but does not make
+an environment portable.
+
+To exercise the same physical-wheel path as CI instead, run:
+
+```text
+uv run --directory python --locked --no-sync --offline --no-python-downloads python -m maturin build --release --locked --out dist
+uv run --project python --locked --no-sync --offline --no-python-downloads python tools/install_python_wheel.py python/dist
+uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
+```
+
+The wheel installer forcibly replaces any existing same-version or editable
+installation. It probes imports in an isolated Python process outside the
+checkout, requires the package and native module to come from the target
+virtual environment, checks distribution/native version agreement, and compares
+installed package/native bytes with the selected wheel. Wheel tests use `-I`
+to exclude the checkout from Python's initial import path.
 
 ## Version source
 
@@ -72,9 +176,23 @@ does not contain a second version string.
 - `jseries/` contains the Python package facade and type information.
 - `tests/` verifies the installed package rather than importing from a source
   tree fallback.
-- `pyproject.toml` defines PEP 517/maturin packaging metadata.
+- `benchmarks/` measures the installed wheel's end-to-end Python/native path.
+- `pyproject.toml` defines PEP 517/maturin metadata, dependency groups, and
+  Python tool configuration.
+- `uv.lock` pins the cross-platform contributor tool environment.
 
 Keep computational work in the appropriate Rust library and keep the Python
 layer thin. Release the Python interpreter before future long-running decode
 operations, avoid per-field crossing of the Python/Rust boundary, and prefer
 batch-oriented APIs so Python does not compromise the Rust hot path.
+
+Run the Python boundary benchmark against an installed release wheel:
+
+```text
+uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
+```
+
+The output distinguishes batch return time, batch decoding plus access to every
+field, and the optional per-row call loop. Treat results as local measurements
+and record CPU, operating system, Python, Rust, and commit information before
+comparing runs.

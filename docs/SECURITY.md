@@ -5,7 +5,7 @@ This project is not a security certification or standards-conformance implementa
 | Boundary | Current control | Remaining work |
 |---|---|---|
 | Untrusted schema package | 1 MiB file and 16 MiB package limits; strict TOML keys/types; safe relative paths; bounded messages, words, and fields; overlap/reference/cycle/code validation | Reparse-point/symlink policy, parser fuzzing, signatures, approved installation path |
-| Malformed word | Exact 70/75/80 bounds, zero-padding check, preserved parity, checked 70-bit field ranges, unsafe Rust forbidden | Adapter fuzzing, parity policy, source-byte retention |
+| Malformed word | Exact 70-bit bound, checked field ranges, unsafe Rust forbidden | Adapter fuzzing and source-byte retention |
 | Misleading qualification | Source and qualification carried as explicit author metadata; no standards definitions bundled | Fact-level provenance, trust policy, reviewer workflow, signed releases |
 | Resource exhaustion | Fixed `u128` word representation, 32-word assembly limit, bounded package/model sizes | Bounds for readers, concurrent assemblies, batches, and output queues |
 | Arithmetic/meaning | Exact integer/rational interpretation, explicit special/invalid/not-applicable states | Independently qualified semantic vectors and broader rule model |

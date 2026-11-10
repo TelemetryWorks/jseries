@@ -1,6 +1,6 @@
 # jseries
 
-`jseries` is a high-performance Rust foundation for decoding normalized J-series information words with user-supplied TOML schema packages. It currently implements strict package loading, 70-bit information-word normalization, named 75-bit and SIMPLE 80-bit representations, bounded message assembly, and schema-driven field interpretation.
+`jseries` is a high-performance Rust foundation for decoding 70-bit J-series information words with user-supplied TOML schema packages. It currently implements strict package loading, exact 70-bit word validation, bounded message assembly, and schema-driven field interpretation.
 
 It does **not** contain MIL-STD-6016 message definitions and does not claim standards conformance.
 
@@ -12,7 +12,7 @@ Public catalog metadata can identify a revision but does not supply the normativ
 
 ## Workspace
 
-- `jseries-core`: transport normalization, assembly, validated schema model, and decode hot path; no TOML or filesystem dependency.
+- `jseries-core`: 70-bit word validation, assembly, validated schema model, and decode hot path; no TOML or filesystem dependency.
 - `jseries-schema`: bounded, strict TOML package loading and cold-path reference resolution.
 - `jseries-cli`: package validation, inspection, and explicit decoding commands.
 - `python/`: installable PyO3 extension and Python package backed by `jseries-core`.
@@ -26,7 +26,7 @@ Schema TOML is parsed once. The decoder holds immutable validated definitions, a
 cargo run --locked -p jseries-cli -- --version
 cargo run --locked -p jseries-cli -- schema validate schemas
 cargo run --locked -p jseries-cli -- schema inspect schemas
-cargo run --locked -p jseries-cli -- decode --schema schemas --message EXAMPLE-70 --input-format logical70 --word 0x1c94
+cargo run --locked -p jseries-cli -- decode --schema schemas --message EXAMPLE-70 --word 0x1c94
 ```
 
 The example is invented test data, not a real Link 16 message. See [schemas/README.md](schemas/README.md) for the package layout and [docs/SCHEMA-CONTRACT.md](docs/SCHEMA-CONTRACT.md) for the contract.
@@ -42,9 +42,27 @@ python -m pip install path/to/the-downloaded-jseries-wheel.whl
 python -c "import jseries; print(jseries.__version__)"
 ```
 
+Load a schema package once and reuse its immutable decode plan for individual
+messages or homogeneous batches:
+
+```python
+import jseries
+
+decoder = jseries.Decoder("schemas")
+record = decoder.decode("EXAMPLE-70", [0x1C94])
+records = decoder.decode(
+    "EXAMPLE-70",
+    [[0x1C94], [0x1494], [0x0C94]],
+    source_offset=100,
+)
+```
+
 The package is not yet published to PyPI. See
 [python/README.md](python/README.md) for virtual-environment instructions,
 source builds, supported platforms, versioning, and contributor guidance.
+
+See [unreleased migration guidance](docs/MIGRATION.md) for the Rust transport,
+CLI, schema-vector, and Python API changes.
 
 ## Development
 
@@ -56,6 +74,7 @@ cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --locked
 cargo test --workspace --locked --release
 cargo bench --workspace --no-run --locked
+cargo bench -p jseries-core --bench decode --locked
 taplo fmt --check
 taplo check
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
@@ -63,6 +82,9 @@ python tools/check.py
 ```
 
 GitHub Actions checks Taplo and Rust formatting, Clippy, traceability, debug and release tests, Windows/Linux behavior, the declared MSRV, CodeQL findings, LCOV coverage, and the SonarCloud quality gate. See [docs/CI.md](docs/CI.md) for workflow and secret configuration.
+Python CI additionally enforces Ruff formatting and linting, Pylint, strict
+mypy, compiled-extension stub consistency, pytest, and branch coverage from the
+committed uv development lockfile.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting Rust, Python, schema,
 or workflow changes.

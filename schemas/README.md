@@ -16,6 +16,6 @@ schemas/
 
 Users add layouts under `messages/`, DFI/DUI or other value tables under `catalogs/`, and independently derived cases under `vectors/`. The manifest explicitly lists every file. `jseries schema validate <directory>` validates and resolves the package; `jseries decode --schema <directory> ...` loads it before decoding.
 
-Input format is always explicit. `logical70` is the normalized information value, `word75` adds five parity bits, and `simple80` is ten capture-order bytes containing 70 information, five parity, and five zero padding bits. The decoder does not infer an adapter from input length.
+Each input word is an integer containing exactly the 70 information bits. Values with higher bits set are rejected. Transport framing, parity, padding, and packed byte representations must be handled outside this project before decoding.
 
 There are no `examples/`, `public/`, `synthetic/`, or `authoritative/` buckets. The files at the schema root are an authoring template that users can copy and replace with their own lawful definitions. Qualification comes from evidence, provenance, review, and declared scope—not a directory name. Controlled or unauthorized source material must not be added.

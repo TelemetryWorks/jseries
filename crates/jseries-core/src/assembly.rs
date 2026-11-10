@@ -1,4 +1,4 @@
-use crate::{schema::MAX_WORDS_PER_MESSAGE, transport::NormalizedWord};
+use crate::{schema::MAX_WORDS_PER_MESSAGE, word::InformationWord};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -10,7 +10,7 @@ pub enum WordFormat {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AssembledMessage {
-    words: Vec<NormalizedWord>,
+    words: Vec<InformationWord>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -36,9 +36,9 @@ impl fmt::Display for AssemblyError {
 
 impl std::error::Error for AssemblyError {}
 
-impl NormalizedWord {
+impl InformationWord {
     pub fn word_format(self) -> Result<WordFormat, AssemblyError> {
-        match self.information.value() & 0b11 {
+        match self.value() & 0b11 {
             0 => Ok(WordFormat::Initial),
             1 => Ok(WordFormat::Continuation),
             2 => Ok(WordFormat::Extension),
@@ -48,7 +48,7 @@ impl NormalizedWord {
 }
 
 impl AssembledMessage {
-    pub fn new(words: Vec<NormalizedWord>) -> Result<Self, AssemblyError> {
+    pub fn new(words: Vec<InformationWord>) -> Result<Self, AssemblyError> {
         if words.is_empty() {
             return Err(AssemblyError::Empty);
         }
@@ -66,7 +66,7 @@ impl AssembledMessage {
         Ok(Self { words })
     }
 
-    pub fn words(&self) -> &[NormalizedWord] {
+    pub fn words(&self) -> &[InformationWord] {
         &self.words
     }
 }

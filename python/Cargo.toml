@@ -18,6 +18,7 @@ extension-module = ["pyo3/extension-module"]
 
 [dependencies]
 jseries-core = { path = "../crates/jseries-core" }
+jseries-schema = { path = "../crates/jseries-schema" }
 pyo3.workspace = true
 
 [lints]
