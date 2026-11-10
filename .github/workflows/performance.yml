@@ -31,6 +31,13 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.19"
+          cache-dependency-glob: "python/uv.lock"
+      - name: Install locked Python development tools
+        run: uv sync --directory python --locked --only-group dev
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           toolchain: stable
@@ -46,9 +53,9 @@ jobs:
           args: --release --locked --out dist
           working-directory: python
       - name: Install wheel
-        run: python tools/install_python_wheel.py python/dist
+        run: uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
       - name: Run Python boundary benchmark
-        run: python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
+        run: uv run --project python --locked --no-sync python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
       - name: Upload benchmark evidence
         uses: actions/upload-artifact@v4
         with:

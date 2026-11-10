@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Install exactly one locally built jseries wheel without resolving dependencies."""
 
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
+
+EXPECTED_ARGUMENT_COUNT = 2
 
 
 def main() -> int:
-    if len(sys.argv) != 2:
+    """Install the sole wheel found in the requested directory."""
+    if len(sys.argv) != EXPECTED_ARGUMENT_COUNT:
         print("usage: install_python_wheel.py WHEEL_DIRECTORY", file=sys.stderr)
         return 2
 
@@ -22,11 +25,11 @@ def main() -> int:
 
     subprocess.run(
         [
-            sys.executable,
-            "-m",
+            "uv",
             "pip",
             "install",
-            "--disable-pip-version-check",
+            "--python",
+            sys.executable,
             "--no-deps",
             "--no-index",
             str(wheels[0]),

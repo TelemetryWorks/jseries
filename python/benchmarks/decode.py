@@ -2,10 +2,10 @@
 """Measure end-to-end Python-to-Rust 70-bit word decoding throughput."""
 
 import argparse
-from collections.abc import Callable
-from pathlib import Path
 import statistics
 import time
+from collections.abc import Callable
+from pathlib import Path
 from typing import TypeVar
 
 import jseries
@@ -15,6 +15,7 @@ Result = TypeVar("Result")
 
 
 def measure(callable_: Callable[[], Result], iterations: int) -> tuple[float, Result]:
+    """Return the median duration and final result for repeated calls."""
     samples: list[float] = []
     result = callable_()
     for _ in range(iterations):
@@ -27,12 +28,14 @@ def measure(callable_: Callable[[], Result], iterations: int) -> tuple[float, Re
 def decode_and_consume_fields(
     decoder: jseries.Decoder, rows: list[list[int]]
 ) -> tuple[list[jseries.DecodedRecord], int]:
+    """Decode a batch and materialize every field value."""
     records = decoder.decode("EXAMPLE-70", rows)
     checksum = sum(field.raw for record in records for field in record.fields)
     return records, checksum
 
 
 def main() -> int:
+    """Run the requested Python-to-Rust throughput measurements."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--rows", type=int, default=10_000)
     parser.add_argument("--iterations", type=int, default=7)

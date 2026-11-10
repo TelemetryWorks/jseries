@@ -91,25 +91,48 @@ API returns rich row-oriented objects; for very wide or multi-million-row data,
 a future compact columnar output will avoid constructing one Python-facing field
 object per accessed row and field.
 
-## Install from a checkout
+## Contributor environment
 
-An editable developer installation compiles the Rust extension into the active
-virtual environment:
+Maturin remains the package build backend and Cargo remains the version source.
+uv manages only the reproducible contributor environment. From the repository
+root, create a bootstrap environment, activate it, and install the pinned uv:
 
 ```text
-python -m pip install --requirement python/requirements-dev.txt
-python -m maturin develop --manifest-path python/Cargo.toml --locked
-python -m unittest discover --start-directory python/tests --verbose
+python -m venv .venv
+python -m pip install uv==0.12.19
 ```
 
-Run these commands from the repository root after activating the virtual
-environment. `maturin develop` installs into that active environment and
-requires a Rust toolchain and a supported Python interpreter. To exercise the
-same physical-wheel path as CI instead, run:
+uv creates `python/.venv` from the cross-platform lockfile. Install the locked
+build, lint, type-check, and test groups and compile the native extension:
 
 ```text
-python -m maturin build --manifest-path python/Cargo.toml --release --locked --out python/dist
-python -m pip install --no-index --find-links python/dist --force-reinstall jseries
+uv sync --directory python --locked --only-group dev
+uv run --directory python --locked --no-sync maturin develop --uv --locked
+```
+
+Run the complete Python gate with:
+
+```text
+uv run --directory python --locked --no-sync ruff format --check . ../tools
+uv run --directory python --locked --no-sync ruff check . ../tools
+uv run --directory python --locked --no-sync pylint jseries tests benchmarks ../tools
+uv run --directory python --locked --no-sync mypy
+uv run --directory python --locked --no-sync pytest --cov=jseries --cov-branch --cov-report=term-missing
+uv run --directory python --locked --no-sync python -m mypy.stubtest jseries
+```
+
+Ruff is the formatter and fast linter. Pylint is an additional independent
+semantic and style gate. Mypy checks the public package, tests, benchmarks, and
+repository utilities in strict mode; `mypy.stubtest` compares the checked-in
+stubs with the compiled PyO3 module. Pytest-cov measures Python branch coverage;
+Rust coverage remains the responsibility of `cargo-llvm-cov`.
+
+To exercise the same physical-wheel path as CI instead, run:
+
+```text
+uv run --directory python --locked --no-sync maturin build --release --locked --out dist
+uv run --project python --locked --no-sync python tools/install_python_wheel.py python/dist
+uv run --project python --locked --no-sync pytest python/tests
 ```
 
 ## Version source
@@ -128,7 +151,9 @@ does not contain a second version string.
 - `tests/` verifies the installed package rather than importing from a source
   tree fallback.
 - `benchmarks/` measures the installed wheel's end-to-end Python/native path.
-- `pyproject.toml` defines PEP 517/maturin packaging metadata.
+- `pyproject.toml` defines PEP 517/maturin metadata, dependency groups, and
+  Python tool configuration.
+- `uv.lock` pins the cross-platform contributor tool environment.
 
 Keep computational work in the appropriate Rust library and keep the Python
 layer thin. Release the Python interpreter before future long-running decode
@@ -138,7 +163,7 @@ batch-oriented APIs so Python does not compromise the Rust hot path.
 Run the Python boundary benchmark against an installed release wheel:
 
 ```text
-python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
+uv run --project python --locked --no-sync python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
 The output distinguishes batch return time, batch decoding plus access to every

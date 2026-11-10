@@ -23,6 +23,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.19"
+          cache-dependency-glob: "python/uv.lock"
       - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
         with:
           toolchain: stable
@@ -43,11 +51,22 @@ jobs:
           test -n "$SONAR_ORGANIZATION" || { echo "SONAR_ORGANIZATION is not configured"; exit 1; }
       - name: Generate Rust coverage
         run: cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
+      - name: Install locked Python development tools
+        run: uv sync --directory python --locked --only-group dev
+      - name: Build the editable Rust-backed package
+        run: uv run --directory python --locked --no-sync maturin develop --uv --locked
+      - name: Generate Python coverage
+        run: >-
+          uv run --directory python --locked --no-sync pytest
+          --cov=jseries --cov-branch --cov-report=term-missing
+          --cov-report=xml:coverage.xml
       - name: Upload coverage evidence
         uses: actions/upload-artifact@v4
         with:
-          name: rust-lcov-${{ github.sha }}
-          path: lcov.info
+          name: coverage-${{ github.sha }}
+          path: |
+            lcov.info
+            python/coverage.xml
           if-no-files-found: error
           retention-days: 14
       - name: Run SonarCloud analysis
@@ -60,9 +79,10 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
             -Dsonar.sources=crates,tools,python
             -Dsonar.tests=crates,python
-            -Dsonar.exclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**,python/target/**,target/**
+            -Dsonar.exclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**,python/.venv/**,python/dist/**,python/dist-test/**,python/target/**,target/**
             -Dsonar.test.inclusions=crates/**/tests/**,crates/**/benches/**,python/tests/**
-            -Dsonar.coverage.exclusions=crates/**/tests/**,crates/**/benches/**,tools/**,python/**
+            -Dsonar.coverage.exclusions=crates/**/tests/**,crates/**/benches/**,tools/**,python/src/**,python/benchmarks/**,python/**/*.pyi
             -Dsonar.rust.lcov.reportPaths=lcov.info
+            -Dsonar.python.coverage.reportPaths=python/coverage.xml
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=600

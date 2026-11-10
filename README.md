@@ -79,6 +79,9 @@ python tools/check.py
 ```
 
 GitHub Actions checks Taplo and Rust formatting, Clippy, traceability, debug and release tests, Windows/Linux behavior, the declared MSRV, CodeQL findings, LCOV coverage, and the SonarCloud quality gate. See [docs/CI.md](docs/CI.md) for workflow and secret configuration.
+Python CI additionally enforces Ruff formatting and linting, Pylint, strict
+mypy, compiled-extension stub consistency, pytest, and branch coverage from the
+committed uv development lockfile.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting Rust, Python, schema,
 or workflow changes.

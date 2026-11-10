@@ -1,9 +1,11 @@
 """Python interface to the jseries Rust extension."""
 
+# The native module has no Python AST; runtime tests and mypy.stubtest validate these exports.
+# pylint: disable=import-error,no-name-in-module
 from ._jseries import (
-    DecodeError,
     DecodedField,
     DecodedRecord,
+    DecodeError,
     Decoder,
     JSeriesError,
     SchemaError,

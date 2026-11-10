@@ -16,7 +16,7 @@ conversion, native calls, decoding, record wrapping, and lazy field-object
 materialization:
 
 ```text
-python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
+uv run --project python --locked --no-sync python python/benchmarks/decode.py --rows 10000 --iterations 7 --include-single
 ```
 
 These answer different questions. Criterion isolates the Rust engine. The Python

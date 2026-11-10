@@ -7,12 +7,14 @@ GitHub Actions provides five complementary workflows:
   tests, and the declared MSRV test.
 - `CodeQL` analyzes Rust changes on pull requests, pushes to `main`, manual
   runs, and a weekly schedule.
-- `SonarCloud` generates LCOV coverage with `cargo-llvm-cov`, uploads the
-  report as a 14-day workflow artifact, analyzes the repository, and waits for
-  the SonarCloud quality gate.
-- `Python` builds and installs the PyO3 package on Python 3.10 and 3.14 on
-  Windows and Linux, then builds, installs, tests, and retains release abi3
-  wheels for 64-bit Windows and manylinux x86-64.
+- `SonarCloud` generates Rust LCOV and Python branch-coverage XML, uploads both
+  as a 14-day workflow artifact, analyzes the repository, and waits for the
+  SonarCloud quality gate.
+- `Python` installs the committed uv lockfile, enforces Ruff formatting and
+  linting, Pylint, strict mypy, native-stub consistency, pytest, and Python
+  branch coverage. It also builds and installs the PyO3 package on Python 3.10
+  and 3.14 on Windows and Linux, then builds, installs, tests, and retains
+  release abi3 wheels for 64-bit Windows and manylinux x86-64.
 - `Performance` runs when performance-sensitive files change and on manual
   dispatch. It retains Criterion reports plus Rust and installed-wheel Python
   benchmark output for 30 days. Results are evidence, not a pass/fail threshold
@@ -38,14 +40,25 @@ Run the added checks locally with:
 taplo fmt --check
 taplo check
 cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
+uv sync --directory python --locked --only-group dev
+uv run --directory python --locked --no-sync maturin develop --uv --locked
+uv run --directory python --locked --no-sync ruff format --check . ../tools
+uv run --directory python --locked --no-sync ruff check . ../tools
+uv run --directory python --locked --no-sync pylint jseries tests benchmarks ../tools
+uv run --directory python --locked --no-sync mypy
+uv run --directory python --locked --no-sync pytest --cov=jseries --cov-branch
+uv run --directory python --locked --no-sync python -m mypy.stubtest jseries
 ```
 
-CI pins Taplo CLI 0.10.0 and cargo-llvm-cov 0.8.7. Local installations should
-use the same versions when reproducing a workflow result. Third-party actions
-are pinned to immutable commit SHAs with their human-readable version or branch
+CI pins uv 0.12.19, Taplo CLI 0.10.0, and cargo-llvm-cov 0.8.7. Python tools
+are pinned transitively by `python/uv.lock`. Local installations should use the
+same versions when reproducing a workflow result. Third-party actions are
+pinned to immutable commit SHAs with their human-readable version or branch
 recorded in comments.
 
 Rust LCOV generation excludes `jseries-python`: enabling PyO3's extension-module
 link mode inside a Rust test harness is not a representative Python test. The
 Python workflow instead installs and imports the real native wheels on both
-supported operating-system families.
+supported operating-system families. SonarCloud imports `python/coverage.xml`
+for the Python facade; native binding coverage remains excluded from the Rust
+LCOV report because it requires execution through an embedded Python process.
