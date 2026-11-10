@@ -61,6 +61,9 @@ The package is not yet published to PyPI. See
 [python/README.md](python/README.md) for virtual-environment instructions,
 source builds, supported platforms, versioning, and contributor guidance.
 
+See [unreleased migration guidance](docs/MIGRATION.md) for the Rust transport,
+CLI, schema-vector, and Python API changes.
+
 ## Development
 
 Rust edition 2024 is used with a minimum supported Rust version of 1.86. The current workspace was compiled and tested locally with Rust 1.98.0 on Windows. Run:

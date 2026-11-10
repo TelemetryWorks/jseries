@@ -2,15 +2,15 @@
 #![forbid(unsafe_code)]
 
 use jseries_core::{
-    AssembledMessage, DecodeContext, DecodedField, DecodedRecord, Decoder as CoreDecoder,
-    FieldStatus, Value, normalize_word,
+    AssembledMessage, DecodeContext, DecodeError as CoreDecodeError, DecodedField, DecodedRecord,
+    Decoder as CoreDecoder, FieldStatus, Value, normalize_word,
 };
 use jseries_schema::load_package;
 use pyo3::{
     create_exception,
-    exceptions::{PyException, PyTypeError, PyValueError},
+    exceptions::{PyException, PyOverflowError, PyTypeError, PyValueError},
     prelude::*,
-    types::{PyAny, PyList, PyModule},
+    types::{PyAny, PyByteArray, PyBytes, PyList, PyMemoryView, PyModule},
 };
 use std::{path::PathBuf, sync::Arc};
 
@@ -221,12 +221,18 @@ impl PythonDecoder {
         source_offset: u64,
     ) -> PyResult<Py<PyAny>> {
         let source_id: Arc<str> = source_id.unwrap_or_else(|| "python".into()).into();
-        if let Ok(words) = values.extract::<Vec<u128>>() {
+        reject_bytes_like(values)?;
+        let single_words = match extract_words(values) {
+            Ok(words) => Some(words),
+            Err(error) if error.is_instance_of::<PyTypeError>(py) => None,
+            Err(error) => return Err(error),
+        };
+        if let Some(words) = single_words {
             if words.is_empty() {
                 return Err(PyValueError::new_err("decode input cannot be empty"));
             }
             let record = py.detach(|| {
-                let message = assemble_words(words)?;
+                let message = assemble_words(words).map_err(PyValueError::new_err)?;
                 self.inner
                     .decode(
                         &message_id,
@@ -237,12 +243,12 @@ impl PythonDecoder {
                         },
                     )
                     .map(|inner| PythonDecodedRecord { inner })
-                    .map_err(|error| DecodeError::new_err(error.to_string()))
+                    .map_err(decode_error)
             })?;
             return Ok(Py::new(py, record)?.into_any());
         }
 
-        let rows = values.extract::<Vec<Vec<u128>>>().map_err(|_| {
+        let rows = values.extract::<Vec<Bound<'_, PyAny>>>().map_err(|_| {
             PyTypeError::new_err(
                 "decode values must be a non-empty sequence of words or a non-empty sequence of rows",
             )
@@ -250,10 +256,23 @@ impl PythonDecoder {
         if rows.is_empty() {
             return Err(PyValueError::new_err("decode input cannot be empty"));
         }
+        // Copy every row into owned Rust buffers before releasing the interpreter.
+        let rows = rows
+            .iter()
+            .enumerate()
+            .map(|(index, row)| {
+                extract_words(row).map_err(|error| row_input_error(py, index, error))
+            })
+            .collect::<PyResult<Vec<_>>>()?;
         let records: Vec<PythonDecodedRecord> = py.detach(|| {
             let messages = rows
                 .into_iter()
-                .map(assemble_words)
+                .enumerate()
+                .map(|(index, words)| {
+                    assemble_words(words).map_err(|error| {
+                        PyValueError::new_err(format!("batch row {index}: {error}"))
+                    })
+                })
                 .collect::<PyResult<Vec<_>>>()?;
             self.inner
                 .decode_many(&message_id, &messages, source_id, source_offset)
@@ -263,18 +282,61 @@ impl PythonDecoder {
                         .map(|inner| PythonDecodedRecord { inner })
                         .collect::<Vec<_>>()
                 })
-                .map_err(|error| DecodeError::new_err(error.to_string()))
+                .map_err(decode_error)
         })?;
         Ok(PyList::new(py, records)?.into_any().unbind())
     }
 }
 
-fn assemble_words(words: Vec<u128>) -> PyResult<AssembledMessage> {
+fn decode_error(error: CoreDecodeError) -> PyErr {
+    // Core Display identifies the row; Python exceptions must also retain its cause.
+    let message = match &error {
+        CoreDecodeError::BatchRow { error: inner, .. } => format!("{error}: {inner}"),
+        _ => error.to_string(),
+    };
+    DecodeError::new_err(message)
+}
+
+fn reject_bytes_like(value: &Bound<'_, PyAny>) -> PyResult<()> {
+    if value.is_instance_of::<PyBytes>()
+        || value.is_instance_of::<PyByteArray>()
+        || value.is_instance_of::<PyMemoryView>()
+    {
+        return Err(PyTypeError::new_err(
+            "bytes, bytearray, and memoryview inputs are not information-word sequences",
+        ));
+    }
+    Ok(())
+}
+
+fn extract_words(value: &Bound<'_, PyAny>) -> PyResult<Vec<u128>> {
+    reject_bytes_like(value)?;
+    value.extract::<Vec<u128>>().map_err(|error| {
+        if error.is_instance_of::<PyOverflowError>(value.py()) {
+            PyValueError::new_err("word integer must be in the range 0 through 2^70 - 1")
+        } else {
+            error
+        }
+    })
+}
+
+fn row_input_error(py: Python<'_>, index: usize, error: PyErr) -> PyErr {
+    let message = format!("batch row {index}: {}", error.value(py));
+    if error.is_instance_of::<PyValueError>(py) {
+        PyValueError::new_err(message)
+    } else if error.is_instance_of::<PyTypeError>(py) {
+        PyTypeError::new_err(message)
+    } else {
+        error
+    }
+}
+
+fn assemble_words(words: Vec<u128>) -> Result<AssembledMessage, String> {
     let words = words
         .into_iter()
-        .map(|word| normalize_word(word).map_err(|error| PyValueError::new_err(error.to_string())))
-        .collect::<PyResult<Vec<_>>>()?;
-    AssembledMessage::new(words).map_err(|error| PyValueError::new_err(error.to_string()))
+        .map(|word| normalize_word(word).map_err(|error| error.to_string()))
+        .collect::<Result<Vec<_>, _>>()?;
+    AssembledMessage::new(words).map_err(|error| error.to_string())
 }
 
 #[pymodule]

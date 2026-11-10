@@ -133,3 +133,92 @@ fn seeded_random_words_preserve_all_information_bits() {
         assert_eq!(normalize_word(value).unwrap().value(), value);
     }
 }
+
+#[test]
+fn batch_decode_reports_later_row_and_original_cause() {
+    let decoder = Decoder::new(package()).unwrap();
+    let valid = AssembledMessage::new(vec![normalize_word(0).unwrap()]).unwrap();
+    let wrong_count =
+        AssembledMessage::new(vec![normalize_word(0).unwrap(), normalize_word(1).unwrap()])
+            .unwrap();
+    let error = decoder
+        .decode_many(
+            "M",
+            &[valid.clone(), wrong_count, valid.clone()],
+            "batch".into(),
+            10,
+        )
+        .unwrap_err();
+    assert_eq!(error.to_string(), "batch row 1");
+    let DecodeError::BatchRow {
+        index,
+        error: inner,
+    } = &error
+    else {
+        panic!("expected a batch row error: {error:?}");
+    };
+    assert_eq!(*index, 1);
+    assert_eq!(
+        inner.as_ref(),
+        &DecodeError::WordCountMismatch {
+            expected: 1,
+            actual: 2
+        }
+    );
+    assert_eq!(
+        std::error::Error::source(&error).unwrap().to_string(),
+        "word count mismatch: expected 1, received 2"
+    );
+    // No partial Vec is returned; a failed batch does not change the decoder.
+    assert_eq!(
+        decoder
+            .decode_many("M", &[valid], "batch".into(), 10)
+            .unwrap()
+            .len(),
+        1
+    );
+}
+
+#[test]
+fn batch_decode_wraps_offset_overflow_at_its_row() {
+    let decoder = Decoder::new(package()).unwrap();
+    let valid = AssembledMessage::new(vec![normalize_word(0).unwrap()]).unwrap();
+    let error = decoder
+        .decode_many("M", &[valid.clone(), valid], "batch".into(), u64::MAX)
+        .unwrap_err();
+    assert_eq!(error.to_string(), "batch row 1");
+    assert_eq!(
+        std::error::Error::source(&error).unwrap().to_string(),
+        "source offset overflow"
+    );
+    let DecodeError::BatchRow {
+        index: 1,
+        error: inner,
+    } = error
+    else {
+        panic!("expected a row-specific overflow");
+    };
+    assert_eq!(
+        *inner,
+        DecodeError::InvalidContext("source offset overflow")
+    );
+}
+
+#[test]
+fn batch_decode_keeps_global_errors_unwrapped() {
+    let decoder = Decoder::new(package()).unwrap();
+    let valid = AssembledMessage::new(vec![normalize_word(0).unwrap()]).unwrap();
+    let error = decoder
+        .decode_many("UNKNOWN", std::slice::from_ref(&valid), "batch".into(), 0)
+        .unwrap_err();
+    assert_eq!(error, DecodeError::UnsupportedMessage("UNKNOWN".into()));
+    assert!(std::error::Error::source(&error).is_none());
+    let error = decoder
+        .decode_many("M", &[valid], " ".into(), 0)
+        .unwrap_err();
+    assert_eq!(
+        error,
+        DecodeError::InvalidContext("source identifier must contain 1..=4096 bytes")
+    );
+    assert!(std::error::Error::source(&error).is_none());
+}
