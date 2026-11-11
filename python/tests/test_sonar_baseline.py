@@ -105,7 +105,7 @@ def test_fetch_is_one_bounded_get_to_fixed_host(guard: ModuleType) -> None:
     )
 
 
-@pytest.mark.parametrize("body", [b"not json", b"x" * 65537])
+@pytest.mark.parametrize("body", [b"not json", b"x" * 65537], ids=["malformed-json", "oversized"])
 def test_malformed_or_oversized_fetch_fails(guard: ModuleType, body: bytes) -> None:
     """Bound and validate the payload before inspecting any settings."""
     response = MagicMock(status=200)
