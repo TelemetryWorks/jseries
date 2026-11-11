@@ -34,6 +34,43 @@ next to the scanner invocation.
 The SonarCloud project must use CI-based analysis with Automatic Analysis
 disabled so the uploaded LCOV report is the coverage source.
 
+## Fixed new-code baseline
+
+The project uses SonarQube Cloud's **Specific date** definition, explicitly set
+on `TelemetryWorks_jseries`: `sonar.leak.period=2026-09-23` and
+`sonar.leak.period.type=date`. This is an intentional all-code baseline, not a
+release or a rolling window. The earliest repository commit is September 24 UTC;
+source blame starts September 24 UTC. Original feature commits authored September
+25 UTC were merged in November, so choosing the merge date would exempt that work.
+The fixed cutoff predates all those lines and must not advance automatically.
+
+Previous-version calculation requires configured version history; adding
+`sonar.projectVersion` alone does not establish a new-code period. Rolling days
+would age unresolved work out. Specific version lacks a meaningful historical
+version here. Cloud's documented date option avoids those tradeoffs without
+changing package versions. See [Cloud new-code configuration](https://docs.sonarsource.com/sonarqube-cloud/managing-your-projects/project-analysis/configuring-new-code-calculation).
+
+The existing guarded Sonar job runs `tools/check_sonar_baseline.py` before
+coverage/analysis. It makes one bounded authenticated settings GET and fails
+closed on missing credentials, unreadable/malformed settings, drift, duplicates,
+or inherited values. Cloud may omit `inherited` for an explicit setting: omission
+and boolean false are accepted, while true and nonboolean values are rejected.
+Only readable project settings are required; the analysis token need not be an
+administrator. No setting is written by repository verification or analysis.
+The existing same-repository/fork/Dependabot secret boundary remains unchanged.
+
+PR analysis against its target is the primary gate; main's push analysis is the
+backstop. Scanner arguments, thresholds, exclusions and `sonar.qualitygate.wait`
+are unchanged. `NONE` is not a pass. Validate the exact postmerge revision using
+the run log and public analysis API: require an evaluated period, all six gate
+conditions, new-code measures, and `alert_status=OK`, preserving the exact analysis
+ID and workflow run. Fix measured failures rather than moving the baseline.
+Any intentional baseline change requires separate reviewed authorization.
+
+The one-time administrative setup was performed separately in [run 42955617045](https://github.com/TelemetryWorks/jseries/actions/runs/42955617045):
+its empty before-state, two HTTP 204 responses, and exact readback were independently
+reviewed. The temporary setup workflow was never merged into main.
+
 Run the added checks locally with:
 
 ```text

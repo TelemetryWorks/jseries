@@ -53,6 +53,11 @@ jobs:
           test -n "$SONAR_TOKEN" || { echo "SONAR_TOKEN is not configured"; exit 1; }
           test -n "$SONAR_PROJECT_KEY" || { echo "SONAR_PROJECT_KEY is not configured"; exit 1; }
           test -n "$SONAR_ORGANIZATION" || { echo "SONAR_ORGANIZATION is not configured"; exit 1; }
+      - name: Verify fixed project baseline (read-only)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+        run: python tools/check_sonar_baseline.py
       - name: Generate Rust coverage
         run: cargo llvm-cov --workspace --all-features --exclude jseries-python --locked --lcov --output-path lcov.info
       - name: Install locked Python development tools
