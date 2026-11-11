@@ -34,15 +34,47 @@ next to the scanner invocation.
 The SonarCloud project must use CI-based analysis with Automatic Analysis
 disabled so the uploaded LCOV report is the coverage source.
 
-## Fixed new-code baseline
+## Configured cutoff and evaluated new-code period
 
-The project uses SonarQube Cloud's **Specific date** definition, explicitly set
-on `TelemetryWorks_jseries`: `sonar.leak.period=2026-09-23` and
-`sonar.leak.period.type=date`. This is an intentional all-code baseline, not a
-release or a rolling window. The earliest repository commit is September 24 UTC;
-source blame starts September 24 UTC. Original feature commits authored September
-25 UTC were merged in November, so choosing the merge date would exempt that work.
-The fixed cutoff predates all those lines and must not advance automatically.
+The project uses SonarQube Cloud's **Specific date** configuration, explicitly
+set on `TelemetryWorks_jseries`: `sonar.leak.period=2026-09-23` and
+`sonar.leak.period.type=date`. This fixed parameter is not a release or rolling
+window. It was selected before repository/source dates to avoid using the
+November merge date as the cutoff for September-authored feature work. The
+configured parameter must not advance automatically, but it is not a guarantee
+that Cloud's evaluated period starts on that date or includes the entire codebase.
+
+### Observed main analysis
+
+On 2026-11-11, [Sonar push run 42957341198](https://github.com/TelemetryWorks/jseries/actions/runs/42957341198)
+succeeded for revision `92513b13b3010394146ba555b59d56015a266390`.
+[Exact analysis `6129d4f5-2005-4a09-b978-b5d883abd26c`](https://sonarcloud.io/api/qualitygates/project_status?analysisId=6129d4f5-2005-4a09-b978-b5d883abd26c)
+reported `OK`, all six conditions `OK`, and `ignoredConditions=false`.
+Its period had mode `date`, parameter `2026-09-23`, and effective date
+`2026-09-25T00:09:37+0000`.
+
+That effective timestamp matches retained analysis
+`9ef32886-747a-4434-8066-b836fe71f6b5`, revision
+`f55812fdff6adf769f91f5698b817db1ab0f5f33`, in the project's analysis history.
+This records the observed resolution to retained history; it does not assert a
+universal internal selection algorithm or promise the same result for different
+history/retention. Foundation code before that anchor is old code for this
+period. Feature commit `650e968` begins at `2026-09-25T03:57:25Z`, after the
+anchor; its later November merge does not move that earlier feature work outside
+the period.
+
+| Metric at this exact analysis | Observed value |
+| --- | --- |
+| New lines | 1597 |
+| New lines to cover / uncovered | 81 / 0 |
+| New-code coverage | 100.0% (81/81 eligible new lines covered) |
+| Overall lines to cover / uncovered | 707 / 131 |
+| Overall coverage | 81.5% |
+| Alert status | `OK` |
+
+New-code coverage is distinct from overall coverage. Passing the new-code gate
+does not establish full coverage or reclassify all foundation code as new.
+These are dated analysis results, not a timeless coverage guarantee.
 
 Previous-version calculation requires configured version history; adding
 `sonar.projectVersion` alone does not establish a new-code period. Rolling days
@@ -55,16 +87,21 @@ coverage/analysis. It makes one bounded authenticated settings GET and fails
 closed on missing credentials, unreadable/malformed settings, drift, duplicates,
 or inherited values. Cloud may omit `inherited` for an explicit setting: omission
 and boolean false are accepted, while true and nonboolean values are rejected.
-Only readable project settings are required; the analysis token need not be an
-administrator. No setting is written by repository verification or analysis.
+The preflight verifies configured settings only, not the resolved analysis period
+or its coverage scope. Only readable project settings are required; the analysis
+token need not be an administrator. No setting is written by repository
+verification or analysis.
 The existing same-repository/fork/Dependabot secret boundary remains unchanged.
 
 PR analysis against its target is the primary gate; main's push analysis is the
 backstop. Scanner arguments, thresholds, exclusions and `sonar.qualitygate.wait`
 are unchanged. `NONE` is not a pass. Validate the exact postmerge revision using
-the run log and public analysis API: require an evaluated period, all six gate
-conditions, new-code measures, and `alert_status=OK`, preserving the exact analysis
-ID and workflow run. Fix measured failures rather than moving the baseline.
+the run log and public analysis API: record the configured parameter and actual
+effective period date/history anchor separately, all six main gate conditions,
+new-code measures, overall coverage, and `alert_status=OK`, preserving the exact
+analysis ID and workflow run. Do not require the effective date to equal the
+configured parameter or infer that all code is new. Fix measured failures rather
+than moving the baseline.
 Any intentional baseline change requires separate reviewed authorization.
 
 The one-time administrative setup was performed separately in [run 42955617045](https://github.com/TelemetryWorks/jseries/actions/runs/42955617045):
