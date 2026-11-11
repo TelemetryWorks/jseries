@@ -78,6 +78,12 @@ uv sync and maturin develop commands above first. The gate checks lock freshness
 offline and requires an existing `python/.venv`. It never installs or updates
 dependencies and fails if a required tool is absent.
 
+SonarCloud's explicit project new-code baseline is date `2026-09-23`. The
+read-only preflight in `tools/check_sonar_baseline.py` must fail closed on drift
+or unverifiable settings and must never set/advance the baseline. Keep the
+same-repository secret boundary, gate thresholds, exclusions, and wait behavior;
+any baseline change requires separate reviewed authorization. See `docs/CI.md`.
+
 GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
 for the workflow boundaries and required repository secrets.
 
