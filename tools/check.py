@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS_DIRECTORY = "../tools"
 
 
 def run(command: list[str]) -> int:
@@ -40,10 +41,10 @@ def main() -> int:
         [*python_dev[:-1], "../tools/check_toml.py"],
         [*python_dev[:-1], "../tools/check_traceability.py"],
         [*python_dev[:-1], "../tools/check_python.py"],
-        [*python_dev, "ruff", "format", "--check", ".", "../tools"],
-        [*python_dev, "ruff", "check", ".", "../tools"],
+        [*python_dev, "ruff", "format", "--check", ".", TOOLS_DIRECTORY],
+        [*python_dev, "ruff", "check", ".", TOOLS_DIRECTORY],
         [*python_dev, "mypy"],
-        [*python_dev, "pylint", "jseries", "tests", "benchmarks", "../tools"],
+        [*python_dev, "pylint", "jseries", "tests", "benchmarks", TOOLS_DIRECTORY],
         [
             *python_dev,
             "pytest",

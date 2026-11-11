@@ -150,32 +150,7 @@ pub fn validate_message(message: &MessageSpec) -> Result<Vec<usize>, SchemaError
         occupied[word] |= bits;
         validate_codes(&field.specials, field.width, "special", &field.id)
             .map_err(|error| fail(error.0))?;
-        match &field.interpretation {
-            Interpretation::ScaledUnsigned {
-                denominator, unit, ..
-            } => {
-                if *denominator == 0 || unit.is_empty() || field.width > 63 {
-                    return Err(fail(format!("invalid scaling in {}", field.id)));
-                }
-            }
-            Interpretation::Enumeration(entries) => {
-                if entries.is_empty() {
-                    return Err(fail(format!("empty enumeration in {}", field.id)));
-                }
-                validate_codes(entries, field.width, "enumeration", &field.id)
-                    .map_err(|error| fail(error.0))?;
-                if entries
-                    .iter()
-                    .any(|entry| find_code(&field.specials, entry.raw).is_some())
-                {
-                    return Err(fail(format!(
-                        "normal/special code conflict in {}",
-                        field.id
-                    )));
-                }
-            }
-            Interpretation::Unsigned | Interpretation::TwosComplement => {}
-        }
+        validate_interpretation(field).map_err(|error| fail(error.0))?;
     }
 
     for field in &*message.fields {
@@ -216,6 +191,35 @@ pub fn validate_message(message: &MessageSpec) -> Result<Vec<usize>, SchemaError
     Ok(order)
 }
 
+fn validate_interpretation(field: &FieldSpec) -> Result<(), SchemaError> {
+    match &field.interpretation {
+        Interpretation::ScaledUnsigned {
+            denominator, unit, ..
+        } => {
+            if *denominator == 0 || unit.is_empty() || field.width > 63 {
+                return Err(SchemaError(format!("invalid scaling in {}", field.id)));
+            }
+        }
+        Interpretation::Enumeration(entries) => {
+            if entries.is_empty() {
+                return Err(SchemaError(format!("empty enumeration in {}", field.id)));
+            }
+            validate_codes(entries, field.width, "enumeration", &field.id)?;
+            if entries
+                .iter()
+                .any(|entry| find_code(&field.specials, entry.raw).is_some())
+            {
+                return Err(SchemaError(format!(
+                    "normal/special code conflict in {}",
+                    field.id
+                )));
+            }
+        }
+        Interpretation::Unsigned | Interpretation::TwosComplement => {}
+    }
+    Ok(())
+}
+
 pub fn find_code(entries: &[CodeLabel], raw: u128) -> Option<&CodeLabel> {
     entries
         .binary_search_by_key(&raw, |entry| entry.raw)
@@ -249,4 +253,164 @@ fn validate_text(name: &str, value: &str) -> Result<(), SchemaError> {
         return Err(SchemaError(format!("{name} must contain 1..=4096 bytes")));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn message() -> MessageSpec {
+        MessageSpec {
+            id: "M".into(),
+            word_count: 1,
+            fields: vec![FieldSpec {
+                id: "f".into(),
+                definition_ref: "D".into(),
+                word: 0,
+                lsb: 0,
+                width: 4,
+                interpretation: Interpretation::Unsigned,
+                specials: Arc::from([]),
+                condition: None,
+            }]
+            .into(),
+        }
+    }
+
+    fn codes(values: &[u128]) -> Arc<[CodeLabel]> {
+        values
+            .iter()
+            .map(|raw| CodeLabel {
+                raw: *raw,
+                label: "label".into(),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn interpretation_boundaries_preserve_exact_errors() {
+        for (width, denominator, unit) in [(4, 0, "m"), (4, 1, ""), (64, 1, "m")] {
+            let mut message = message();
+            let field = &mut Arc::make_mut(&mut message.fields)[0];
+            field.width = width;
+            field.interpretation = Interpretation::ScaledUnsigned {
+                numerator: 1,
+                denominator,
+                unit: unit.into(),
+            };
+            assert_eq!(
+                validate_message(&message).unwrap_err().0,
+                "M: invalid scaling in f"
+            );
+        }
+        for (entries, expected) in [
+            (codes(&[]), "M: empty enumeration in f"),
+            (
+                codes(&[16]),
+                "M: invalid, duplicate, or unsorted enumeration code in f",
+            ),
+            (
+                codes(&[1, 1]),
+                "M: invalid, duplicate, or unsorted enumeration code in f",
+            ),
+            (
+                codes(&[2, 1]),
+                "M: invalid, duplicate, or unsorted enumeration code in f",
+            ),
+        ] {
+            let mut message = message();
+            Arc::make_mut(&mut message.fields)[0].interpretation =
+                Interpretation::Enumeration(entries);
+            assert_eq!(validate_message(&message).unwrap_err().0, expected);
+        }
+        let mut message = message();
+        let field = &mut Arc::make_mut(&mut message.fields)[0];
+        field.specials = codes(&[1]);
+        field.interpretation = Interpretation::Enumeration(codes(&[1]));
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: normal/special code conflict in f"
+        );
+    }
+
+    #[test]
+    fn validation_precedence_and_boundary_acceptance_are_stable() {
+        let mut message = message();
+        let field = &mut Arc::make_mut(&mut message.fields)[0];
+        field.specials = codes(&[16]);
+        field.interpretation = Interpretation::Enumeration(codes(&[]));
+        field.condition = Some(Condition {
+            selector: "missing".into(),
+            equals: 0,
+        });
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: invalid, duplicate, or unsorted special code in f"
+        );
+        let field = &mut Arc::make_mut(&mut message.fields)[0];
+        field.specials = codes(&[]);
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: empty enumeration in f"
+        );
+        let field = &mut Arc::make_mut(&mut message.fields)[0];
+        field.condition = None;
+        field.interpretation = Interpretation::ScaledUnsigned {
+            numerator: 1,
+            denominator: 1,
+            unit: "m".into(),
+        };
+        field.width = 63;
+        assert_eq!(validate_message(&message).unwrap(), vec![0]);
+        let field = &mut Arc::make_mut(&mut message.fields)[0];
+        field.width = 4;
+        field.interpretation = Interpretation::Enumeration(codes(&[15]));
+        assert_eq!(validate_message(&message).unwrap(), vec![0]);
+    }
+
+    #[test]
+    fn dependency_order_and_errors_are_stable() {
+        let mut message = message();
+        let mut dependent = message.fields[0].clone();
+        dependent.condition = Some(Condition {
+            selector: "selector".into(),
+            equals: 1,
+        });
+        let mut selector = message.fields[0].clone();
+        selector.id = "selector".into();
+        selector.lsb = 4;
+        message.fields = vec![dependent, selector].into();
+        assert_eq!(validate_message(&message).unwrap(), vec![1, 0]);
+        Arc::make_mut(&mut message.fields)[0]
+            .condition
+            .as_mut()
+            .unwrap()
+            .equals = 16;
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: selector equality is outside selector width"
+        );
+        Arc::make_mut(&mut message.fields)[0]
+            .condition
+            .as_mut()
+            .unwrap()
+            .equals = 1;
+        Arc::make_mut(&mut message.fields)[1].condition = Some(Condition {
+            selector: "f".into(),
+            equals: 1,
+        });
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: conditional dependency cycle"
+        );
+        Arc::make_mut(&mut message.fields)[0]
+            .condition
+            .as_mut()
+            .unwrap()
+            .selector = "missing".into();
+        assert_eq!(
+            validate_message(&message).unwrap_err().0,
+            "M: missing selector missing"
+        );
+    }
 }

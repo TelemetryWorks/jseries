@@ -247,7 +247,7 @@ fn read_toml<T: for<'de> Deserialize<'de>>(
     toml::from_str(&text).map_err(|e| LoadError::Toml(format!("{}: {e}", path.display())))
 }
 fn validate_relative(path: &Path) -> Result<(), LoadError> {
-    if path.extension().and_then(|s| s.to_str()) != Some("toml")
+    if path.extension().and_then(std::ffi::OsStr::to_str) != Some("toml")
         || path
             .components()
             .any(|part| !matches!(part, Component::Normal(_)))
@@ -314,6 +314,26 @@ pub fn package_manifest_path(root: impl AsRef<Path>) -> PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn package_path_boundaries_preserve_diagnostics() {
+        for accepted in ["message.toml", "messages/example.toml", "messages/é.toml"] {
+            validate_relative(Path::new(accepted)).unwrap();
+        }
+        for rejected in [
+            "message.TOML",
+            "message",
+            "../message.toml",
+            "./message.toml",
+            "/message.toml",
+        ] {
+            let path = Path::new(rejected);
+            assert_eq!(
+                validate_relative(path).unwrap_err().to_string(),
+                format!("unsafe or non-TOML package path {}", path.display())
+            );
+        }
+    }
+
     #[test]
     fn raw_numbers_are_explicit_and_canonical() {
         assert_eq!(parse_raw("0x3f").unwrap(), 63);

@@ -20,7 +20,8 @@ def guard_fixture() -> ModuleType:
     """Import the repository utility without running its network entry point."""
     path = Path(__file__).resolve().parents[2] / "tools/check_sonar_baseline.py"
     spec = importlib.util.spec_from_file_location("jseries_sonar_guard_test", path)
-    assert spec is not None and spec.loader is not None
+    assert spec is not None
+    assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -90,7 +91,8 @@ def test_fetch_is_one_bounded_get_to_fixed_host(guard: ModuleType) -> None:
         assert guard.read_baseline("fake-token") == baseline()
         build.return_value.open.assert_called_once()
         request = build.return_value.open.call_args.args[0]
-        assert request.get_method() == "GET" and request.data is None
+        assert request.get_method() == "GET"
+        assert request.data is None
         url = urlsplit(request.full_url)
         assert (url.scheme, url.netloc, url.path) == (
             "https",
