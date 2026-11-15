@@ -29,7 +29,7 @@ Repository = "https://github.com/TelemetryWorks/jseries"
 
 [dependency-groups]
 build = ["maturin>=1.14.1,<2"]
-lint = ["mypy>=1.19,<2", "pylint>=4,<5", "ruff>=0.12,<1", "tomli>=2,<3"]
+lint = ["mypy>=1.19,<3", "pylint>=4,<5", "ruff>=0.12,<1", "tomli>=2,<3"]
 test = ["pytest>=9,<10", "pytest-cov>=7,<8"]
 dev = [
   { include-group = "build" },
