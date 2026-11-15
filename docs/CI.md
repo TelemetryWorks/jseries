@@ -34,9 +34,14 @@ credential persistence. No workflow uses `pull_request_target`. Dependabot
 checks GitHub Actions, every Cargo manifest (including `python/Cargo.toml`),
 and the Python PEP 621 manifest via the assigned `pip` ecosystem: weekly,
 five open PRs per ecosystem entry, grouped minor/patch updates, separate majors,
-and `chore(deps)` commit prefixes. This does not automatically merge updates or
-promise `uv.lock` regeneration from the pip entry. Review Python manifest/lock
-consistency together; existing uv 0.12.19 locked/offline checks remain mandatory.
+and `chore(deps)` commit prefixes. The Python pip entry uses
+`versioning-strategy: lockfile-only` to prevent manifest-only/range-widening PRs.
+It cannot refresh `uv.lock`, so automated Python dependency maintenance remains
+limited; maintainers must update manifest/lock together with uv 0.12.19 and pass
+existing locked/offline checks. Do not switch to the uv ecosystem until its
+updater supports the exact required version. See the
+[compatibility evidence and fallback](evals/2026-11-15-dependabot-python-compatibility.md).
+No update is automatically merged.
 See [the rollout record](evals/2026-11-15-supply-chain-rollout.md) for pin
 verification and static validation evidence.
 

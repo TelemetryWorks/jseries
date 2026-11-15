@@ -92,6 +92,9 @@ comments, workflow-level `contents: read`, and checkout credential persistence
 disabled unless Git authentication is needed. Scorecard's write grants stay
 job-scoped; never add `pull_request_target`. Dependabot proposes weekly grouped
 minor/patch updates; updates still require review and existing locked checks.
+The Python pip entry is lockfile-only pending support for the exact uv 0.12.19
+requirement; it cannot refresh uv.lock. Keep manual Python manifest/lock updates
+synchronized and do not relax the uv pin to enable automation. See `docs/CI.md`.
 For workflow changes, run `actionlint -shellcheck= -pyflakes= .github/workflows/*.yml`
 (optional integrations need their tools installed) and `zizmor .github/workflows`
 (default regular persona, online audits; `--offline` is supplemental).
