@@ -24,10 +24,11 @@ jobs:
       github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          persist-credentials: false
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
       - name: Install uv
@@ -35,11 +36,11 @@ jobs:
         with:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
-      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
           components: clippy, llvm-tools-preview
-      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2
+      - uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
         with:
           tool: cargo-llvm-cov@0.8.7
           fallback: none
@@ -70,7 +71,7 @@ jobs:
           --cov=jseries --cov-branch --cov-report=term-missing
           --cov-report=xml:coverage.xml
       - name: Upload coverage evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: coverage-${{ github.sha }}
           path: |
