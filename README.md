@@ -1,5 +1,7 @@
 # jseries
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/TelemetryWorks/jseries/badge)](https://scorecard.dev/viewer/?uri=github.com/TelemetryWorks/jseries)
+
 `jseries` is a high-performance Rust foundation for decoding 70-bit J-series information words with user-supplied TOML schema packages. It currently implements strict package loading, exact 70-bit word validation, bounded message assembly, and schema-driven field interpretation.
 
 It does **not** contain MIL-STD-6016 message definitions and does not claim standards conformance.

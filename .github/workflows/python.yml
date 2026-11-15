@@ -18,11 +18,13 @@ jobs:
     name: Python quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"
-      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
       - name: Install uv
@@ -50,7 +52,7 @@ jobs:
       - name: Verify native extension stubs
         run: uv run --directory python --locked --no-sync --offline --no-python-downloads python -m mypy.stubtest jseries
       - name: Upload Python coverage evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: python-coverage-${{ github.sha }}
           path: python/coverage.xml
@@ -66,8 +68,10 @@ jobs:
         python-version: ["3.10", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
@@ -75,7 +79,7 @@ jobs:
         with:
           version: "0.12.19"
           cache-dependency-glob: "python/uv.lock"
-      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
       - name: Install locked development tools
@@ -99,8 +103,10 @@ jobs:
     name: Build Linux x86-64 wheel
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
       - name: Install uv
@@ -125,7 +131,7 @@ jobs:
           uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
           uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m mypy.stubtest jseries
       - name: Upload Linux wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: jseries-wheel-linux-x86_64
           path: python/dist/*.whl
@@ -136,8 +142,10 @@ jobs:
     name: Build Windows x86-64 wheel
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
           architecture: x64
@@ -162,7 +170,7 @@ jobs:
           uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m pytest python/tests
           uv run --project python --locked --no-sync --offline --no-python-downloads python -I -m mypy.stubtest jseries
       - name: Upload Windows wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: jseries-wheel-windows-x86_64
           path: python/dist/*.whl

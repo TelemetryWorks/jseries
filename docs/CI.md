@@ -1,6 +1,6 @@
 # Continuous integration
 
-GitHub Actions provides five complementary workflows:
+GitHub Actions provides seven complementary workflows:
 
 - `CI` runs Taplo, the repository TOML and schema checks, rustfmt, Clippy,
   traceability, debug and release tests, benchmark compilation, cross-platform
@@ -19,6 +19,26 @@ GitHub Actions provides five complementary workflows:
   dispatch. It retains Criterion reports plus Rust and installed-wheel Python
   benchmark output for 30 days. Results are evidence, not a pass/fail threshold
   on variable shared runners.
+
+- `Scorecard` follows the reviewed owner-program template: main pushes and a
+  weekly schedule, public security results and SARIF with five-day retention.
+  Only its analysis job has `security-events: write` and `id-token: write`;
+  workflow permissions remain `contents: read`. This publishes security results,
+  not packages, and adds no package release or publishing path.
+- `Workflow security` runs zizmor 1.32.0 on workflow-changing PRs to main,
+  auditing all workflows with the default regular persona and online audits.
+  `advanced-security: false` selects failing audit mode without SARIF write grants.
+
+All direct actions are SHA-pinned with version comments, and checkouts disable
+credential persistence. No workflow uses `pull_request_target`. Dependabot
+checks GitHub Actions, every Cargo manifest (including `python/Cargo.toml`),
+and the Python PEP 621 manifest via the assigned `pip` ecosystem: weekly,
+five open PRs per ecosystem entry, grouped minor/patch updates, separate majors,
+and `chore(deps)` commit prefixes. This does not automatically merge updates or
+promise `uv.lock` regeneration from the pip entry. Review Python manifest/lock
+consistency together; existing uv 0.12.19 locked/offline checks remain mandatory.
+See [the rollout record](evals/2026-11-15-supply-chain-rollout.md) for pin
+verification and static validation evidence.
 
 The SonarCloud workflow requires these repository secrets:
 

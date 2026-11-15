@@ -31,8 +31,10 @@ jobs:
     env:
       BENCHMARK_ROWS: ${{ inputs.rows || 10000 }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.14"
       - name: Install uv
@@ -42,7 +44,7 @@ jobs:
           cache-dependency-glob: "python/uv.lock"
       - name: Install locked Python development tools
         run: uv sync --directory python --locked --only-group dev --python python --no-python-downloads
-      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
       - name: Run Rust benchmarks
@@ -61,7 +63,7 @@ jobs:
       - name: Run Python boundary benchmark
         run: uv run --project python --locked --no-sync --offline --no-python-downloads python python/benchmarks/decode.py --rows "$BENCHMARK_ROWS" --iterations 7 --include-single | tee python-benchmark.txt
       - name: Upload benchmark evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: jseries-performance-${{ github.sha }}
           path: |

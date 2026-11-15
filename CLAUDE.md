@@ -86,8 +86,16 @@ equals the configured date or makes the whole codebase new. Keep the
 same-repository secret boundary, gate thresholds, exclusions, and wait behavior;
 any baseline change requires separate reviewed authorization. See `docs/CI.md`.
 
-GitHub-hosted analysis also includes CodeQL and SonarCloud. See `docs/CI.md`
-for the workflow boundaries and required repository secrets.
+GitHub-hosted analysis also includes CodeQL, SonarCloud, OpenSSF Scorecard,
+and zizmor. Keep direct workflow actions SHA-pinned with verified version
+comments, workflow-level `contents: read`, and checkout credential persistence
+disabled unless Git authentication is needed. Scorecard's write grants stay
+job-scoped; never add `pull_request_target`. Dependabot proposes weekly grouped
+minor/patch updates; updates still require review and existing locked checks.
+For workflow changes, run `actionlint -shellcheck= -pyflakes= .github/workflows/*.yml`
+(optional integrations need their tools installed) and `zizmor .github/workflows`
+(default regular persona, online audits; `--offline` is supplemental).
+See `docs/CI.md` for workflow boundaries and required repository secrets.
 
 ## Architecture and repository layout
 
