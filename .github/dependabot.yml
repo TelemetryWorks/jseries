@@ -5,6 +5,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Owner policy 2026-11-16: majors are planned in the coordinator's
+    # planned-major-upgrades list; security updates are unaffected.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
     # Keep the workflow SHA pins; Dependabot updates pins and version comments.
@@ -23,6 +28,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Owner policy 2026-11-16: majors are planned in the coordinator's
+    # planned-major-upgrades list; security updates are unaffected.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
     groups:
