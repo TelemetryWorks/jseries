@@ -31,12 +31,20 @@ GitHub Actions provides seven complementary workflows:
 
 All direct actions are SHA-pinned with version comments, and checkouts disable
 credential persistence. No workflow uses `pull_request_target`. Dependabot
-checks GitHub Actions, every Cargo manifest (including `python/Cargo.toml`),
-and the Python PEP 621 manifest via the assigned `pip` ecosystem: weekly,
-five open PRs per ecosystem entry, grouped minor/patch updates, separate majors,
-and `chore(deps)` commit prefixes. This does not automatically merge updates or
-promise `uv.lock` regeneration from the pip entry. Review Python manifest/lock
-consistency together; existing uv 0.12.19 locked/offline checks remain mandatory.
+checks GitHub Actions and every Cargo manifest (including `python/Cargo.toml`):
+weekly, five open PRs per ecosystem entry, grouped minor/patch updates, separate
+majors, and `chore(deps)` commit prefixes. Those entries are unchanged.
+
+**Dependabot creates NO Python dependency PRs for jseries.** Python dependencies
+and `python/uv.lock` are maintained manually with pinned uv 0.12.19; do not relax
+the pin. pip cannot update uv.lock, and pip plus lockfile-only is a no-op for this
+repository's ranged dependencies, so the pip entry is removed. The inspected
+Dependabot uv updater bundles uv 0.13.7 and maps the exact required-version
+mismatch to `ToolVersionNotSupported`. Revisit when Dependabot supports the pin
+or the pin is deliberately moved through separate review. Maintainers must
+update manifest/lock together and pass the existing locked/offline checks.
+See the [source evidence and owner decision](evals/2026-11-15-dependabot-python-compatibility.md).
+No update is automatically merged.
 See [the rollout record](evals/2026-11-15-supply-chain-rollout.md) for pin
 verification and static validation evidence.
 
