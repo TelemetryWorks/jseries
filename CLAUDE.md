@@ -92,9 +92,12 @@ comments, workflow-level `contents: read`, and checkout credential persistence
 disabled unless Git authentication is needed. Scorecard's write grants stay
 job-scoped; never add `pull_request_target`. Dependabot proposes weekly grouped
 minor/patch updates; updates still require review and existing locked checks.
-The Python pip entry is lockfile-only pending support for the exact uv 0.12.19
-requirement; it cannot refresh uv.lock. Keep manual Python manifest/lock updates
-synchronized and do not relax the uv pin to enable automation. See `docs/CI.md`.
+Dependabot creates NO Python dependency PRs for jseries. Python dependencies and
+`python/uv.lock` are maintained manually with pinned uv 0.12.19; do not relax the
+pin. The inspected Dependabot uv updater bundles 0.13.7 and rejects that exact
+requirement as `ToolVersionNotSupported`. Revisit when Dependabot supports it or
+the pin is deliberately moved through separate review. See `docs/CI.md` and the
+[compatibility evidence](docs/evals/2026-11-15-dependabot-python-compatibility.md).
 For workflow changes, run `actionlint -shellcheck= -pyflakes= .github/workflows/*.yml`
 (optional integrations need their tools installed) and `zizmor .github/workflows`
 (default regular persona, online audits; `--offline` is supplemental).

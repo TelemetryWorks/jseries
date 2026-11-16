@@ -29,18 +29,3 @@ updates:
       cargo-minor-and-patch:
         patterns: ["*"]
         update-types: [minor, patch]
-
-  - package-ecosystem: pip
-    directory: /python
-    # The exact uv 0.12.19 pin is incompatible with the inspected uv updater.
-    # pip cannot refresh uv.lock; prevent manifest-only/range-widening PRs.
-    versioning-strategy: lockfile-only
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(deps)"
-    groups:
-      pip-minor-and-patch:
-        patterns: ["*"]
-        update-types: [minor, patch]

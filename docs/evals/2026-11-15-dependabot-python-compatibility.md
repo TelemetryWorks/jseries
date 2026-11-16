@@ -1,53 +1,61 @@
-# Dependabot Python compatibility — 2026-11-15
+# Dependabot Python compatibility — owner decision 2026-11-15
 
 Follow-up to PR #9, base `2786ded66b63729dd0820728dccacf0ed4618dd6`.
-Scope: Dependabot configuration and documentation only. Keep the manifest,
-lockfile, uv required-version, CI workflows, Sonar behavior and settings intact.
+Scope: Dependabot configuration and documentation only. Manifest, lockfile,
+uv required-version, CI workflows, Sonar behavior and settings remain unchanged.
 
-## Compatibility decision
+## Decision: no Python Dependabot entry
 
-The repository requires exactly `uv==0.12.19` in `python/pyproject.toml` and CI.
-[GitHub's current supported-ecosystems table](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories)
-lists the uv ecosystem with supported version `v0.11`; it does not establish
-support for this exact pin.
+**Dependabot creates NO Python dependency PRs for jseries.** Python dependencies
+and `python/uv.lock` are maintained manually with pinned uv 0.12.19. Do not relax
+that pin to enable automation. Revisit when Dependabot supports it or the pin is
+deliberately moved through separate review.
 
-For additional evidence, upstream dependabot-core at
-[`1a0125f11e75859a0957b4d73ea6b8656570b30e`](https://github.com/dependabot/dependabot-core/tree/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv)
-[builds the updater with uv 0.13.7](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv/Dockerfile#L16)
-and [runs uv lock during updates](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv/lib/dependabot/uv/file_updater/lock_file_updater.rb).
-This is inspected upstream source, not proof of the deployed GitHub updater image.
+Remove the pip entry entirely; keep Actions and Cargo entries unchanged.
+The earlier pip plus `lockfile-only` fallback was rejected in review: pip has no
+uv.lock support, and all jseries Python dependency requirements are ranges.
+That combination cannot create Python version or security PRs here. Retaining
+it would imply dependency coverage that does not exist.
 
-An isolated local probe used uv 0.13.7 and a minimal scratch `pyproject.toml`
-with the repository's exact required-version. `uv lock --offline
---no-python-downloads` exited 2 before resolving dependencies:
+## Source evidence
+
+At inspected dependabot-core commit
+[`1a0125f11e75859a0957b4d73ea6b8656570b30e`](https://github.com/dependabot/dependabot-core/tree/1a0125f11e75859a0957b4d73ea6b8656570b30e):
+
+- The [pip file fetcher](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/python/lib/dependabot/python/file_fetcher.rb#L45)
+  collects pyproject.toml with Poetry/PDM locks, not uv.lock. This repository has
+  only uv.lock for its Python dependencies, with ranged requirements in
+  `python/pyproject.toml`.
+- [Dependabot's lockfile-only documentation](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#versioning-strategy)
+  limits PRs to lockfile updates and skips versions requiring manifest changes.
+  It does not give pip support for uv.lock.
+- The [uv updater image](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv/Dockerfile#L16)
+  bundles uv 0.13.7 and [runs uv lock](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv/lib/dependabot/uv/file_updater/lock_file_updater.rb).
+- Its [required-version error handler](https://github.com/dependabot/dependabot-core/blob/1a0125f11e75859a0957b4d73ea6b8656570b30e/uv/lib/dependabot/uv/file_updater/lock_file_error_handler.rb#L86)
+  matches `Required uv version ... does not match` and raises
+  `Dependabot::ToolVersionNotSupported`. Thus that updater rejects the
+  repository's exact `required-version = "==0.12.19"`.
+
+[GitHub's supported-ecosystems table](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories)
+also lists uv v0.11, not a compatibility guarantee for this exact pin. The
+upstream code above is inspected source, not a claim about the deployed GitHub
+image. No successful hosted Dependabot job is claimed.
+
+## Executed validation
+
+The earlier isolated uv 0.13.7 probe against a minimal scratch pyproject with
+`required-version = "==0.12.19"` exited 2 before resolution:
 
 ```text
 error: Required uv version `==0.12.19` does not match the running version `0.13.7`.
 ```
 
-Neither the documented version nor the inspected updater can establish
-compatibility with the exact pin. Do not switch to uv or change that pin on this
-evidence. Reconsider when documented/deployed updater support can be verified.
-
-## Authorized fallback and limitation
-
-Retain pip for `/python` and add `versioning-strategy: lockfile-only`.
-[GitHub documents this strategy for pip](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#versioning-strategy):
-it limits PRs to lockfile changes and skips versions needing manifest changes.
-This prevents pip's manifest-only range updates from leaving `uv.lock` stale.
-Weekly cadence, five-PR limit, minor/patch grouping and commit prefix are retained;
-Actions and Cargo entries are unchanged.
-
-This is a safeguard, not automatic uv lock maintenance. pip does not update this
-repository's uv lockfile; with no pip-managed lockfile, useful Python version PRs
-may cease. Python security/version updates still need maintainer attention:
-update manifest and uv lock together with uv 0.12.19 and run existing locked CI.
-No automatic lock regeneration, vulnerability remediation, successful hosted
-Dependabot job, or full runtime test execution is claimed.
-
-Validation: the scratch incompatibility probe executed as described; structured
-YAML comparison confirms only the Python entry's versioning strategy changes.
-Manifest/lock/workflow bytes and the uv pin are unchanged. YAML parsing,
+Structured YAML comparison verifies removal of the Python entry only, with
+Actions/Cargo entries unchanged. Repository dependency requirements remain
+ranges; manifest/lock/workflow bytes and the uv pin are unchanged. YAML parsing,
 actionlint 1.7.12, offline regular-persona zizmor 1.32.0 workflow audit and
-`git diff --check` pass. The existing three supplemental Dependabot cooldown
-advisories remain outside the assigned workflow audit, without new suppressions.
+`git diff --check` pass. Supplemental Dependabot auditing reports the two
+remaining pre-existing cooldown advisories (Actions/Cargo), without suppressions.
+No runtime test, lock regeneration, vulnerability remediation or settings change
+is claimed. Manual Python updates must synchronize manifest/lock with uv 0.12.19
+and pass existing locked CI.
